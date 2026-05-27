@@ -1,0 +1,111 @@
+/* RF2 — Captura fotográfica emocional. Lenguaje visual menta; tokens --sa-* para
+ * soportar modo oscuro automáticamente (RNF5). No se codifican colores de paleta. */
+
+.capture {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ----- Estado inicial: sin foto ----- */
+.capture__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.5rem 0.5rem 1rem;
+}
+.capture__intro-ic {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  font-size: 1.7rem;
+  margin-bottom: 1.1rem;
+}
+.capture__hint {
+  font-size: 0.95rem;
+  color: var(--sa-muted);
+  line-height: 1.5;
+  max-width: 18rem;
+  margin: 0 0 1.6rem;
+}
+.capture__cta {
+  width: 100%;
+  max-width: 22rem;
+  --border-radius: var(--sa-radius-sm);
+}
+
+/* ----- Estado con foto ----- */
+.capture__preview {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--sa-radius);
+  border: 1px solid var(--sa-line);
+  box-shadow: var(--sa-shadow-md);
+}
+
+.capture__retake {
+  align-self: flex-start;
+  margin: 0.4rem 0 0.2rem;
+  --padding-start: 4px;
+  --padding-end: 8px;
+  font-size: 0.85rem;
+}
+
+.capture__q {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--sa-lav-700);
+  margin: 1rem 0 0.9rem;
+}
+
+/* Grilla 3×2 de etiquetas */
+.capture__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+
+.capture__pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.85rem 0.4rem;
+  background: var(--sa-card);
+  border: 1px solid var(--sa-line);
+  border-radius: var(--sa-radius-sm);
+  box-shadow: var(--sa-shadow-sm);
+  color: var(--sa-ink);
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.capture__pill:active {
+  transform: scale(0.96);
+}
+.capture__emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.capture__label {
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* Seleccionada: relleno lavanda */
+.capture__pill.is-selected {
+  background: var(--sa-lav-500);
+  border-color: var(--sa-lav-500);
+  color: var(--ion-color-primary-contrast);
+  box-shadow: var(--sa-shadow-md);
+}
+.capture__pill.is-selected .capture__label {
+  color: var(--ion-color-primary-contrast);
+}
+
+.capture__save {
+  margin-top: 1.4rem;
+  --border-radius: var(--sa-radius-sm);
+}
