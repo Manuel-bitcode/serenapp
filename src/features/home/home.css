@@ -1,0 +1,10 @@
+.home {
+  padding-top: max(2.2rem, calc(env(safe-area-inset-top) + 1rem));
+}
+.home .sa-tile__body {
+  display: flex;
+  flex-direction: column;
+}
+.home .sa-ic ion-icon {
+  font-size: 22px;
+}

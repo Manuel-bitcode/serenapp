@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import {
   IonApp,
@@ -7,13 +8,11 @@ import {
   IonTabBar,
   IonTabButton,
   IonTabs,
-  setupIonicReact
+  IonToast,
+  setupIonicReact,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle } from 'ionicons/icons';
-import Tab1 from './pages/Tab1';
-import Tab2 from './pages/Tab2';
-import Tab3 from './pages/Tab3';
+import { homeOutline, timeOutline, settingsOutline } from 'ionicons/icons';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -23,7 +22,7 @@ import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/structure.css';
 import '@ionic/react/css/typography.css';
 
-/* Optional CSS utils that can be commented out */
+/* Optional CSS utils */
 import '@ionic/react/css/padding.css';
 import '@ionic/react/css/float-elements.css';
 import '@ionic/react/css/text-alignment.css';
@@ -31,55 +30,124 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+/* Dark mode en modo "class": alternamos .ion-palette-dark desde services/theme.ts (RNF5) */
+import '@ionic/react/css/palettes/dark.class.css';
 
-/* import '@ionic/react/css/palettes/dark.always.css'; */
-/* import '@ionic/react/css/palettes/dark.class.css'; */
-import '@ionic/react/css/palettes/dark.system.css';
-
-/* Theme variables */
+/* Theme propio */
 import './theme/variables.css';
+import './theme/typography.css';
+import './theme/app.css';
+
+import Splash from './components/Splash';
+import OnboardingPage from './features/onboarding/OnboardingPage';
+import HomePage from './features/home/HomePage';
+import TouchPage from './features/touch/TouchPage';
+import CapturePage from './features/capture/CapturePage';
+import WritePage from './features/write/WritePage';
+import HistoryPage from './features/history/HistoryPage';
+import EntryDetailPage from './features/history/EntryDetailPage';
+import SettingsPage from './features/settings/SettingsPage';
+
+import { getProfile } from './services/profile';
+import { getSettings } from './services/settings';
+import { initAppearance } from './services/theme';
+import { useBackButton } from './hooks/useBackButton';
 
 setupIonicReact();
+
+/** Pestañas de la app: Inicio / Historial / Ajustes. */
+const Tabs: React.FC = () => (
+  <IonTabs>
+    <IonRouterOutlet>
+      <Route exact path="/tabs/home">
+        <HomePage />
+      </Route>
+      <Route exact path="/tabs/history">
+        <HistoryPage />
+      </Route>
+      <Route exact path="/tabs/settings">
+        <SettingsPage />
+      </Route>
+      <Route exact path="/tabs">
+        <Redirect to="/tabs/home" />
+      </Route>
+    </IonRouterOutlet>
+    <IonTabBar slot="bottom">
+      <IonTabButton tab="home" href="/tabs/home">
+        <IonIcon aria-hidden="true" icon={homeOutline} />
+        <IonLabel>Inicio</IonLabel>
+      </IonTabButton>
+      <IonTabButton tab="history" href="/tabs/history">
+        <IonIcon aria-hidden="true" icon={timeOutline} />
+        <IonLabel>Historial</IonLabel>
+      </IonTabButton>
+      <IonTabButton tab="settings" href="/tabs/settings">
+        <IonIcon aria-hidden="true" icon={settingsOutline} />
+        <IonLabel>Ajustes</IonLabel>
+      </IonTabButton>
+    </IonTabBar>
+  </IonTabs>
+);
+
+/**
+ * Shell raíz: aplica apariencia, decide la pantalla inicial (onboarding vs tabs)
+ * y monta el router. Los módulos inmersivos (touch/capture/write) son rutas de nivel
+ * superior que se apilan sobre las tabs → el back de Android vuelve a Home (RF8).
+ */
+const Shell: React.FC = () => {
+  const { showExitHint, dismissExitHint } = useBackButton();
+  const [onboarded, setOnboarded] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const settings = await getSettings();
+      initAppearance(settings.theme, settings.textScale);
+      const profile = await getProfile();
+      setOnboarded(profile.onboarded);
+    })();
+  }, []);
+
+  if (onboarded === null) return <Splash />;
+
+  return (
+    <>
+      <IonRouterOutlet>
+        <Route path="/onboarding">
+          <OnboardingPage />
+        </Route>
+        <Route path="/tabs">
+          <Tabs />
+        </Route>
+        <Route exact path="/touch">
+          <TouchPage />
+        </Route>
+        <Route exact path="/capture">
+          <CapturePage />
+        </Route>
+        <Route exact path="/write">
+          <WritePage />
+        </Route>
+        <Route exact path="/entry/:id">
+          <EntryDetailPage />
+        </Route>
+        <Route exact path="/">
+          <Redirect to={onboarded ? '/tabs/home' : '/onboarding'} />
+        </Route>
+      </IonRouterOutlet>
+      <IonToast
+        isOpen={showExitHint}
+        message="Pulsa atrás de nuevo para salir"
+        duration={1800}
+        onDidDismiss={dismissExitHint}
+      />
+    </>
+  );
+};
 
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route exact path="/tab1">
-            <Tab1 />
-          </Route>
-          <Route exact path="/tab2">
-            <Tab2 />
-          </Route>
-          <Route path="/tab3">
-            <Tab3 />
-          </Route>
-          <Route exact path="/">
-            <Redirect to="/tab1" />
-          </Route>
-        </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="tab1" href="/tab1">
-            <IonIcon aria-hidden="true" icon={triangle} />
-            <IonLabel>Tab 1</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
-            <IonIcon aria-hidden="true" icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab3" href="/tab3">
-            <IonIcon aria-hidden="true" icon={square} />
-            <IonLabel>Tab 3</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
+      <Shell />
     </IonReactRouter>
   </IonApp>
 );
