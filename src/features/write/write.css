@@ -1,0 +1,79 @@
+/* RF4/RF5 — Escritura guiada. Lenguaje visual cálido; tokens --sa-* para soporte
+ * automático de modo oscuro (RNF5). No se codifican colores de paleta. */
+
+.write {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.write__prompt-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.write__tag {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sa-lav-500);
+}
+
+/* Botón sutil "otra pregunta" */
+.write__rotate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: none;
+  padding: 0.2rem 0.1rem;
+  font-size: 0.8rem;
+  color: var(--sa-muted);
+  cursor: pointer;
+}
+.write__rotate ion-icon {
+  font-size: 1rem;
+}
+.write__rotate:active {
+  color: var(--sa-warm-deep);
+}
+
+.write__prompt {
+  font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--sa-ink);
+  margin: 0.4rem 0 1rem;
+}
+
+/* Área de texto: papel cálido, sin límite, autoGrow */
+.write__area {
+  --background: var(--sa-card);
+  --color: var(--sa-ink);
+  --placeholder-color: var(--sa-muted);
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+  --padding-top: 0.9rem;
+  --padding-bottom: 0.9rem;
+  border: 1px solid var(--sa-line);
+  border-radius: var(--sa-radius);
+  box-shadow: var(--sa-shadow-sm);
+  min-height: 9rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.write__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+.write__count {
+  font-size: 0.8rem;
+  color: var(--sa-muted);
+}
+.write__save {
+  --border-radius: var(--sa-radius-sm);
+}
