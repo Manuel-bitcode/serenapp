@@ -1,2 +1,149 @@
-/* For information on how to create your own theme, please refer to:
-http://ionicframework.com/docs/theming/ */
+/* SerenApp — theme variables
+ * Tokens portados desde mockups/shared.css. Paletas light + dark (RNF5).
+ * Ionic dark mode en modo "class": .ion-palette-dark en <html> (ver services/theme.ts).
+ */
+
+:root {
+  /* ----- Brand tokens (--sa-*) usados por los módulos ----- */
+  --sa-bg: #f4f1eb;
+  --sa-surface: #faf8f4;
+  --sa-card: #ffffff;
+  --sa-ink: #2d2a32;
+  --sa-muted: #8b8a91;
+  --sa-line: #e8e4dd;
+
+  --sa-lav-50: #f3eff8;
+  --sa-lav-100: #e5dcf0;
+  --sa-lav-300: #b8a6d9;
+  --sa-lav-500: #7b68a6;
+  --sa-lav-700: #4f4173;
+
+  --sa-mint: #c5d5c0;
+  --sa-mint-deep: #7b9477;
+  --sa-warm: #e8c9a8;
+  --sa-warm-deep: #b88860;
+  --sa-rose: #e5bfc2;
+
+  --sa-shadow-sm: 0 1px 2px rgba(45, 42, 50, 0.04), 0 1px 3px rgba(45, 42, 50, 0.03);
+  --sa-shadow-md: 0 4px 12px rgba(45, 42, 50, 0.06), 0 2px 4px rgba(45, 42, 50, 0.04);
+  --sa-shadow-lg: 0 12px 32px rgba(45, 42, 50, 0.08), 0 4px 8px rgba(45, 42, 50, 0.04);
+
+  --sa-radius: 20px;
+  --sa-radius-sm: 14px;
+
+  /* ----- Ionic mapping (light) ----- */
+  --ion-background-color: var(--sa-bg);
+  --ion-background-color-rgb: 244, 241, 235;
+  --ion-text-color: var(--sa-ink);
+  --ion-text-color-rgb: 45, 42, 50;
+
+  --ion-font-family: var(--sa-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
+
+  --ion-toolbar-background: var(--sa-bg);
+  --ion-toolbar-color: var(--sa-ink);
+  --ion-item-background: var(--sa-surface);
+  --ion-card-background: var(--sa-card);
+  --ion-tab-bar-background: var(--sa-surface);
+  --ion-tab-bar-color: var(--sa-muted);
+  --ion-tab-bar-color-selected: var(--sa-lav-500);
+  --ion-border-color: var(--sa-line);
+
+  --ion-color-step-50: #efece6;
+  --ion-color-step-100: #e9e5df;
+  --ion-color-step-150: #e3dfd8;
+  --ion-color-step-200: #ddd8d0;
+  --ion-color-step-500: #8b8a91;
+  --ion-color-step-850: #45424a;
+
+  /* primary — lavanda */
+  --ion-color-primary: #7b68a6;
+  --ion-color-primary-rgb: 123, 104, 166;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #6c5b92;
+  --ion-color-primary-tint: #8877af;
+
+  /* secondary — menta */
+  --ion-color-secondary: #7b9477;
+  --ion-color-secondary-rgb: 123, 148, 119;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #6c8269;
+  --ion-color-secondary-tint: #889f85;
+
+  /* tertiary — cálido */
+  --ion-color-tertiary: #b88860;
+  --ion-color-tertiary-rgb: 184, 136, 96;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #a27854;
+  --ion-color-tertiary-tint: #bf9770;
+
+  /* danger — usado en "borrar datos" */
+  --ion-color-danger: #c0564f;
+  --ion-color-danger-rgb: 192, 86, 79;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #a94c45;
+  --ion-color-danger-tint: #c66760;
+
+  /* medium — texto tenue */
+  --ion-color-medium: #8b8a91;
+  --ion-color-medium-rgb: 139, 138, 145;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #7a7a80;
+  --ion-color-medium-tint: #97969c;
+}
+
+/* ----- Dark palette (class mode) ----- */
+:root.ion-palette-dark {
+  --sa-bg: #1b1922;
+  --sa-surface: #262430;
+  --sa-card: #2b2935;
+  --sa-ink: #eceaf0;
+  --sa-muted: #9d9aa6;
+  --sa-line: #34313f;
+
+  /* acentos un punto más claros para legibilidad sobre fondo oscuro */
+  --sa-lav-50: #2a2538;
+  --sa-lav-100: #3a3350;
+  --sa-lav-300: #c4b6e0;
+  --sa-lav-500: #a896cf;
+  --sa-lav-700: #d6cbe9;
+  --sa-mint: #93ad8f;
+  --sa-mint-deep: #9cb898;
+  --sa-warm: #d8b48c;
+  --sa-warm-deep: #d2a679;
+  --sa-rose: #d6a4a8;
+
+  --sa-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --sa-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --sa-shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.45);
+
+  --ion-background-color: var(--sa-bg);
+  --ion-background-color-rgb: 27, 25, 34;
+  --ion-text-color: var(--sa-ink);
+  --ion-text-color-rgb: 236, 234, 240;
+
+  --ion-toolbar-background: var(--sa-bg);
+  --ion-item-background: var(--sa-surface);
+  --ion-card-background: var(--sa-card);
+  --ion-tab-bar-background: #211f2a;
+  --ion-tab-bar-color-selected: var(--sa-lav-300);
+  --ion-border-color: var(--sa-line);
+
+  --ion-color-step-50: #232029;
+  --ion-color-step-100: #2a2731;
+  --ion-color-step-150: #312e39;
+  --ion-color-step-200: #383541;
+  --ion-color-step-500: #9d9aa6;
+  --ion-color-step-850: #d6d4dc;
+
+  --ion-color-primary: #b8a6d9;
+  --ion-color-primary-rgb: 184, 166, 217;
+  --ion-color-primary-contrast: #1b1922;
+  --ion-color-primary-contrast-rgb: 27, 25, 34;
+  --ion-color-primary-shade: #a292bf;
+  --ion-color-primary-tint: #bfafdd;
+}

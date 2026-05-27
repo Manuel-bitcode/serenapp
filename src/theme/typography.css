@@ -1,0 +1,41 @@
+/* SerenApp — tipografía
+ * Inter (UI/cuerpo) + Fraunces (títulos). Cargadas en index.html.
+ * Escala en rem para respetar el tamaño de texto del sistema y el control de Ajustes (RNF5).
+ */
+
+:root {
+  --sa-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --sa-font-serif: 'Fraunces', 'Georgia', 'Times New Roman', serif;
+}
+
+/* Tamaño base + control de escala (data-text-scale en <html>, ver services/theme.ts) */
+html {
+  font-size: 16px;
+}
+html[data-text-scale='grande'] {
+  font-size: 18px;
+}
+html[data-text-scale='mayor'] {
+  font-size: 20px;
+}
+
+body {
+  font-family: var(--sa-font-sans);
+}
+
+/* Títulos serif de marca */
+.sa-serif {
+  font-family: var(--sa-font-serif);
+  letter-spacing: -0.3px;
+}
+
+/* Respeta usuarios que prefieren menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
