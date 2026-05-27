@@ -142,7 +142,7 @@ const EntryDetailPage: React.FC = () => {
                     </div>
                     <div>
                       <dt>Duración</dt>
-                      <dd>{formatDuration(entry.durationMs)} min</dd>
+                      <dd>{formatDuration(entry.durationMs)}</dd>
                     </div>
                   </dl>
                 </div>
