@@ -29,3 +29,7 @@ yarn-error.log*
 
 # Optional eslint cache
 .eslintcache
+
+# Cypress artifacts
+/cypress/screenshots
+/cypress/videos
