@@ -33,3 +33,6 @@ yarn-error.log*
 # Cypress artifacts
 /cypress/screenshots
 /cypress/videos
+
+# iOS build output (DerivedData)
+/ios/build
