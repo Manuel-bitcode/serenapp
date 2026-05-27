@@ -36,3 +36,7 @@ yarn-error.log*
 
 # iOS build output (DerivedData)
 /ios/build
+
+# APK / AAB build outputs copied to root
+/*.apk
+/*.aab
