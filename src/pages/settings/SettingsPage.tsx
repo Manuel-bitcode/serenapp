@@ -19,20 +19,20 @@ import {
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
-import ScreenHeader from '../components/ScreenHeader';
+import ScreenHeader from '../../components/ScreenHeader';
 import { chevronForward } from 'ionicons/icons';
-import { useSettings } from '../hooks/useSettings';
-import { useProfile } from '../hooks/useProfile';
-import { setName as persistName } from '../services/profile';
-import { syncReminder, notificationsAvailable } from '../services/notifications';
+import { useSettings } from '../../hooks/useSettings';
+import { useProfile } from '../../hooks/useProfile';
+import { setName as persistName } from '../../services/profile';
+import { syncReminder, notificationsAvailable } from '../../services/notifications';
 import {
   clearAllEntries,
   entryCounts,
   type EntryCounts,
-} from '../services/entries';
-import { clearSettings } from '../services/settings';
-import { clearProfile } from '../services/profile';
-import type { ThemePref, TextScale } from '../data/types';
+} from '../../services/entries';
+import { clearSettings } from '../../services/settings';
+import { clearProfile } from '../../services/profile';
+import type { ThemePref, TextScale } from '../../data/types';
 import './settings.css';
 
 const APP_VERSION = '0.1.0';

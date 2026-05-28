@@ -8,7 +8,7 @@ import {
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
-import ScreenHeader from '../components/ScreenHeader';
+import ScreenHeader from '../../components/ScreenHeader';
 import {
   cameraOutline,
   createOutline,
@@ -16,12 +16,12 @@ import {
   trashOutline,
 } from 'ionicons/icons';
 import { useParams } from 'react-router';
-import { deleteEntry, getEntry } from '../services/entries';
+import { deleteEntry, getEntry } from '../../services/entries';
 import {
   emotionByTag,
   touchVariantLabel,
   type Entry,
-} from '../data/types';
+} from '../../data/types';
 import './history.css';
 
 /** mm:ss legible a partir de una duración en ms. */

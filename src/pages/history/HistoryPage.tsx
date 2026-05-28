@@ -5,19 +5,19 @@ import {
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
-import ScreenHeader from '../components/ScreenHeader';
+import ScreenHeader from '../../components/ScreenHeader';
 import {
   cameraOutline,
   createOutline,
   handLeftOutline,
   sparklesOutline,
 } from 'ionicons/icons';
-import { useEntries } from '../hooks/useEntries';
+import { useEntries } from '../../hooks/useEntries';
 import {
   emotionByTag,
   touchVariantLabel,
   type Entry,
-} from '../data/types';
+} from '../../data/types';
 import './history.css';
 
 /** mm:ss legible a partir de una duración en ms. */
