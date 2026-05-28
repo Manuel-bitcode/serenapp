@@ -10,9 +10,9 @@ import {
 } from '@ionic/react';
 import { trashOutline } from 'ionicons/icons';
 import { useParams } from 'react-router';
-import EmptyState from '../../components/EmptyState';
-import EntryIcon from '../../components/EntryIcon';
-import ScreenHeader from '../../components/ScreenHeader';
+import EmptyState from '../../components/empty-state/EmptyState';
+import EntryIcon from '../../components/entry-icon/EntryIcon';
+import ScreenHeader from '../../components/screen-header/ScreenHeader';
 import { deleteEntry, getEntry } from '../../services/entries';
 import {
   emotionByTag,

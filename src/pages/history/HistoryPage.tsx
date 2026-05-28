@@ -6,9 +6,9 @@ import {
   useIonViewWillEnter,
 } from '@ionic/react';
 import { sparklesOutline } from 'ionicons/icons';
-import EmptyState from '../../components/EmptyState';
-import EntryIcon from '../../components/EntryIcon';
-import ScreenHeader from '../../components/ScreenHeader';
+import EmptyState from '../../components/empty-state/EmptyState';
+import EntryIcon from '../../components/entry-icon/EntryIcon';
+import ScreenHeader from '../../components/screen-header/ScreenHeader';
 import { useEntries } from '../../hooks/useEntries';
 import {
   emotionByTag,

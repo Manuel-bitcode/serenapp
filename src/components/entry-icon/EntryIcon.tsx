@@ -1,5 +1,5 @@
 import { IonIcon } from '@ionic/react';
-import type { EntryType } from '../data/types';
+import type { EntryType } from '../../data/types';
 import { ENTRY_VISUAL } from './entry-visual';
 
 interface EntryIconProps {

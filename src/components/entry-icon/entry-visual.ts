@@ -3,7 +3,7 @@
  * EntryDetailPage (detalle). Hoy hay UNA sola fuente de verdad.
  */
 import { cameraOutline, createOutline, handLeftOutline } from 'ionicons/icons';
-import type { EntryType } from '../data/types';
+import type { EntryType } from '../../data/types';
 
 export type EntryAccent = 'lav' | 'mint' | 'warm';
 

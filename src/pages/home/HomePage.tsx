@@ -5,7 +5,7 @@ import {
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
-import EntryIcon from '../../components/EntryIcon';
+import EntryIcon from '../../components/entry-icon/EntryIcon';
 import type { EntryType } from '../../data/types';
 import { getProfile } from '../../services/profile';
 import './home.css';

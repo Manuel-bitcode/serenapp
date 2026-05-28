@@ -12,7 +12,7 @@ import { shuffleOutline } from 'ionicons/icons';
 import { Preferences } from '@capacitor/preferences';
 import { WRITING_PROMPTS } from '../../data/types';
 import { addTextEntry } from '../../services/entries';
-import ScreenHeader from '../../components/ScreenHeader';
+import ScreenHeader from '../../components/screen-header/ScreenHeader';
 import './write.css';
 
 const DRAFT_KEY = 'serenapp.draft';

@@ -11,8 +11,8 @@ import { cameraOutline, refreshOutline } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { EMOTIONS, type EmotionTag } from '../../data/types';
 import { addPhotoEntry } from '../../services/entries';
-import EntryIcon from '../../components/EntryIcon';
-import ScreenHeader from '../../components/ScreenHeader';
+import EntryIcon from '../../components/entry-icon/EntryIcon';
+import ScreenHeader from '../../components/screen-header/ScreenHeader';
 import './capture.css';
 
 /**

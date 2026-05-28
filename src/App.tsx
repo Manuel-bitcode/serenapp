@@ -38,7 +38,7 @@ import './theme/variables.css';
 import './theme/typography.css';
 import './theme/app.css';
 
-import Splash from './components/Splash';
+import Splash from './components/splash/Splash';
 import OnboardingPage from './pages/onboarding/OnboardingPage';
 import HomePage from './pages/home/HomePage';
 import TouchPage from './pages/touch/TouchPage';

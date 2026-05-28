@@ -19,7 +19,7 @@ import {
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
-import ScreenHeader from '../../components/ScreenHeader';
+import ScreenHeader from '../../components/screen-header/ScreenHeader';
 import { chevronForward } from 'ionicons/icons';
 import { useSettings } from '../../hooks/useSettings';
 import { useProfile } from '../../hooks/useProfile';
