@@ -35,13 +35,12 @@ export function createTouchAudio(initialMuted = false): TouchSound {
   let master: GainNode | null = null;
   let muted = initialMuted;
 
-  // Nodos del pad ambiental (vivos mientras suena).
+  // Música de fondo: pista MP3 (Lavender Meter) en loop, ruteada por el master gain
+  // para que el botón de silencio y los fades sigan aplicando.
   let ambient: {
+    audio: HTMLAudioElement;
+    src: MediaElementAudioSourceNode;
     gain: GainNode;
-    lfo: OscillatorNode;
-    lfoGain: GainNode;
-    filter: BiquadFilterNode;
-    oscs: OscillatorNode[];
   } | null = null;
 
   let noiseBuffer: AudioBuffer | null = null;
@@ -78,56 +77,49 @@ export function createTouchAudio(initialMuted = false): TouchSound {
     startAmbient(): void {
       if (!ensure() || !ctx || !master || ambient) return;
 
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = 700;
-      filter.Q.value = 0.7;
+      // Pista generada en Suno; vive en public/audio/ y se sirve desde la raíz.
+      const audio = new Audio('/audio/lavender-meter.mp3');
+      audio.loop = true; // se reinicia automáticamente al terminar
+      audio.preload = 'auto';
 
       const gain = ctx.createGain();
       gain.gain.value = 0.0001;
-      gain.connect(filter);
-      filter.connect(master);
-      // swell de entrada suave
-      gain.gain.linearRampToValueAtTime(0.07, now() + 4);
+      // Fade-in suave para no entrar de golpe.
+      gain.gain.linearRampToValueAtTime(0.7, now() + 2.5);
 
-      // Acorde calmo: La2 + Mi3 + La3, con leve detune entre osciladores.
-      const freqs = [110, 164.81, 220];
-      const oscs: OscillatorNode[] = [];
-      for (const f of freqs) {
-        for (const detune of [-4, 4]) {
-          const o = ctx.createOscillator();
-          o.type = 'sine';
-          o.frequency.value = f;
-          o.detune.value = detune;
-          o.connect(gain);
-          o.start();
-          oscs.push(o);
-        }
-      }
+      const src = ctx.createMediaElementSource(audio);
+      src.connect(gain);
+      gain.connect(master);
 
-      // LFO lento que mueve el corte del filtro → respiración del pad.
-      const lfo = ctx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.value = 0.06;
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.value = 220;
-      lfo.connect(lfoGain);
-      lfoGain.connect(filter.frequency);
-      lfo.start();
-
-      ambient = { gain, lfo, lfoGain, filter, oscs };
+      ambient = { audio, src, gain };
+      // play() puede rechazar si aún no hubo gesto; el primer toque ya llamó a resume(),
+      // así que normalmente arranca. Si rechaza, lo intentará el próximo toque.
+      void audio.play().catch(() => {
+        /* política de autoplay: ignorar; reintentar al siguiente gesto */
+      });
     },
 
     stopAmbient(): void {
       if (!ctx || !ambient) return;
       const a = ambient;
       ambient = null;
+      // Fade-out suave y luego pausa + desconexión.
       a.gain.gain.cancelScheduledValues(now());
       a.gain.gain.setValueAtTime(Math.max(0.0001, a.gain.gain.value), now());
       a.gain.gain.linearRampToValueAtTime(0.0001, now() + 0.6);
-      const stopAt = now() + 0.7;
-      a.oscs.forEach((o) => o.stop(stopAt));
-      a.lfo.stop(stopAt);
+      setTimeout(() => {
+        try {
+          a.audio.pause();
+        } catch {
+          /* ignore */
+        }
+        try {
+          a.src.disconnect();
+          a.gain.disconnect();
+        } catch {
+          /* ignore */
+        }
+      }, 700);
     },
 
     setMuted(next: boolean): void {
