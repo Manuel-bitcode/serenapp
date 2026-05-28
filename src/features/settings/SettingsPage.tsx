@@ -4,7 +4,6 @@ import {
   IonButton,
   IonContent,
   IonDatetime,
-  IonHeader,
   IonIcon,
   IonItem,
   IonLabel,
@@ -16,12 +15,11 @@ import {
   IonSegmentButton,
   IonSelect,
   IonSelectOption,
-  IonTitle,
   IonToggle,
-  IonToolbar,
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
+import ScreenHeader from '../../components/ScreenHeader';
 import { chevronForward } from 'ionicons/icons';
 import { useSettings } from '../../hooks/useSettings';
 import { useProfile } from '../../hooks/useProfile';
@@ -100,11 +98,7 @@ const SettingsPage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Ajustes</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <ScreenHeader title="Ajustes" />
       <IonContent className="sa-content" fullscreen>
         <div className="sa-screen settings">
           {/* ---------- Perfil local (RF7) ---------- */}

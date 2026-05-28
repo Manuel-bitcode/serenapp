@@ -1,22 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  IonBackButton,
   IonButton,
-  IonButtons,
   IonContent,
-  IonHeader,
   IonIcon,
   IonPage,
   IonTextarea,
-  IonTitle,
   IonToast,
-  IonToolbar,
   useIonRouter,
 } from '@ionic/react';
 import { shuffleOutline } from 'ionicons/icons';
 import { Preferences } from '@capacitor/preferences';
 import { WRITING_PROMPTS } from '../../data/types';
 import { addTextEntry } from '../../services/entries';
+import ScreenHeader from '../../components/ScreenHeader';
 import './write.css';
 
 const DRAFT_KEY = 'serenapp.draft';
@@ -104,23 +100,19 @@ const WritePage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/tabs/home" />
-          </IonButtons>
-          <IonTitle>Escribe</IonTitle>
-          <IonButtons slot="end">
-            <IonButton
-              onClick={rotatePrompt}
-              aria-label="Cambiar pregunta"
-              title="Otra pregunta"
-            >
-              <IonIcon slot="icon-only" icon={shuffleOutline} />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+      <ScreenHeader
+        title="Escribe"
+        backHref="/tabs/home"
+        end={
+          <IonButton
+            onClick={rotatePrompt}
+            aria-label="Cambiar pregunta"
+            title="Otra pregunta"
+          >
+            <IonIcon slot="icon-only" icon={shuffleOutline} />
+          </IonButton>
+        }
+      />
 
       <IonContent className="sa-content" fullscreen>
         <div className="sa-screen write">

@@ -1,18 +1,14 @@
 import { useState } from 'react';
 import {
   IonAlert,
-  IonBackButton,
   IonButton,
-  IonButtons,
   IonContent,
-  IonHeader,
   IonIcon,
   IonPage,
-  IonTitle,
-  IonToolbar,
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
+import ScreenHeader from '../../components/ScreenHeader';
 import {
   cameraOutline,
   createOutline,
@@ -89,14 +85,7 @@ const EntryDetailPage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/tabs/history" />
-          </IonButtons>
-          <IonTitle>Entrada</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <ScreenHeader title="Entrada" backHref="/tabs/history" />
       <IonContent className="sa-content" fullscreen>
         <div className="sa-screen detail">
           {!entry ? (

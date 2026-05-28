@@ -1,21 +1,17 @@
 import { useState } from 'react';
 import {
-  IonBackButton,
   IonButton,
-  IonButtons,
   IonContent,
-  IonHeader,
   IonIcon,
   IonPage,
-  IonTitle,
   IonToast,
-  IonToolbar,
   useIonRouter,
 } from '@ionic/react';
 import { cameraOutline, refreshOutline } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { EMOTIONS, type EmotionTag } from '../../data/types';
 import { addPhotoEntry } from '../../services/entries';
+import ScreenHeader from '../../components/ScreenHeader';
 import './capture.css';
 
 /**
@@ -54,14 +50,7 @@ const CapturePage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/tabs/home" />
-          </IonButtons>
-          <IonTitle>Captura tu sentir</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <ScreenHeader title="Captura tu sentir" backHref="/tabs/home" />
 
       <IonContent className="sa-content" fullscreen>
         <div className="sa-screen capture">

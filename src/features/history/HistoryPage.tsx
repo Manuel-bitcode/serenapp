@@ -1,13 +1,11 @@
 import {
   IonContent,
-  IonHeader,
   IonIcon,
   IonPage,
-  IonTitle,
-  IonToolbar,
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
+import ScreenHeader from '../../components/ScreenHeader';
 import {
   cameraOutline,
   createOutline,
@@ -128,11 +126,7 @@ const HistoryPage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Tu historial</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <ScreenHeader title="Tu historial" />
       <IonContent className="sa-content" fullscreen>
         <div className="sa-screen hist">
           {isEmpty ? (
