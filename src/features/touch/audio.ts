@@ -202,21 +202,29 @@ export function createTouchAudio(initialMuted = false): TouchSound {
     },
 
     tone(): void {
-      if (muted || !ensure() || !ctx || !master) return;
+      // Partículas: soplido de aire suave (ruido filtrado que decae), no un "beep".
+      if (muted || !ensure() || !ctx || !master || !noiseBuffer) return;
       const t = now();
-      if (t - lastTone < 0.12) return;
+      if (t - lastTone < 0.09) return;
       lastTone = t;
-      const o = ctx.createOscillator();
-      o.type = 'triangle';
-      o.frequency.value = 330 + Math.random() * 160;
+      const src = ctx.createBufferSource();
+      src.buffer = noiseBuffer;
+      src.loop = true;
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      const f0 = 900 + Math.random() * 700;
+      lp.frequency.setValueAtTime(f0, t);
+      lp.frequency.exponentialRampToValueAtTime(Math.max(220, f0 * 0.5), t + 0.3);
+      lp.Q.value = 0.5;
       const g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(0.035, t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
-      o.connect(g);
+      g.gain.linearRampToValueAtTime(0.03, t + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+      src.connect(lp);
+      lp.connect(g);
       g.connect(master);
-      o.start(t);
-      o.stop(t + 0.28);
+      src.start(t);
+      src.stop(t + 0.36);
     },
 
     dispose(): void {
