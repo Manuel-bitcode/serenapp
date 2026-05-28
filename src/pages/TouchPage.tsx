@@ -2,14 +2,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { IonContent, IonIcon, IonPage, useIonRouter } from '@ionic/react';
 import { close, refresh, volumeHigh, volumeMute } from 'ionicons/icons';
 import { Preferences } from '@capacitor/preferences';
-import { TOUCH_VARIANTS, type TouchVariant } from '../../data/types';
-import { addTouchEntry } from '../../services/entries';
-import { createBubblesEngine } from './engines/bubbles';
-import { createSandEngine } from './engines/sand';
-import { createParticlesEngine } from './engines/particles';
-import { createConstellationEngine } from './engines/constellation';
-import { createTouchAudio, type TouchSound } from './audio';
-import type { EngineOptions, TouchEngine } from './engines/engine';
+import { TOUCH_VARIANTS, type TouchVariant } from '../data/types';
+import { addTouchEntry } from '../services/entries';
+import { createBubblesEngine } from '../features/touch/engines/bubbles';
+import { createSandEngine } from '../features/touch/engines/sand';
+import { createParticlesEngine } from '../features/touch/engines/particles';
+import { createConstellationEngine } from '../features/touch/engines/constellation';
+import { createTouchAudio, type TouchSound } from '../features/touch/audio';
+import type { EngineOptions, TouchEngine } from '../features/touch/engines/engine';
 import './touch.css';
 
 /* RF1 — módulo "Siente": 3 mini-experiencias táctiles elegidas al azar, que

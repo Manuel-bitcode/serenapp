@@ -6,7 +6,7 @@ import {
   IonPage,
   useIonRouter,
 } from '@ionic/react';
-import { completeOnboarding } from '../../services/profile';
+import { completeOnboarding } from '../services/profile';
 import './onboarding.css';
 
 interface Slide {

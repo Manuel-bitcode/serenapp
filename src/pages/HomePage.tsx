@@ -7,7 +7,7 @@ import {
   useIonViewWillEnter,
 } from '@ionic/react';
 import { handLeftOutline, cameraOutline, createOutline } from 'ionicons/icons';
-import { getProfile } from '../../services/profile';
+import { getProfile } from '../services/profile';
 import './home.css';
 
 const MODULES = [

@@ -39,14 +39,14 @@ import './theme/typography.css';
 import './theme/app.css';
 
 import Splash from './components/Splash';
-import OnboardingPage from './features/onboarding/OnboardingPage';
-import HomePage from './features/home/HomePage';
-import TouchPage from './features/touch/TouchPage';
-import CapturePage from './features/capture/CapturePage';
-import WritePage from './features/write/WritePage';
-import HistoryPage from './features/history/HistoryPage';
-import EntryDetailPage from './features/history/EntryDetailPage';
-import SettingsPage from './features/settings/SettingsPage';
+import OnboardingPage from './pages/OnboardingPage';
+import HomePage from './pages/HomePage';
+import TouchPage from './pages/TouchPage';
+import CapturePage from './pages/CapturePage';
+import WritePage from './pages/WritePage';
+import HistoryPage from './pages/HistoryPage';
+import EntryDetailPage from './pages/EntryDetailPage';
+import SettingsPage from './pages/SettingsPage';
 
 import { getProfile } from './services/profile';
 import { getSettings } from './services/settings';
