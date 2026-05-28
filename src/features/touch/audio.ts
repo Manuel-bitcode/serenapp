@@ -144,7 +144,7 @@ export function createTouchAudio(initialMuted = false): TouchSound {
       band.Q.value = 0.9;
       const g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(0.03, t + 0.008);
+      g.gain.linearRampToValueAtTime(0.015, t + 0.008);
       g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
       src.connect(band);
       band.connect(g);
@@ -162,7 +162,7 @@ export function createTouchAudio(initialMuted = false): TouchSound {
       o.frequency.exponentialRampToValueAtTime(170, t + 0.12);
       const g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(0.07, t + 0.006);
+      g.gain.linearRampToValueAtTime(0.03, t + 0.006);
       g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
       o.connect(g);
       g.connect(master);
@@ -176,8 +176,8 @@ export function createTouchAudio(initialMuted = false): TouchSound {
       const freq = PENTATONIC[Math.floor(Math.random() * PENTATONIC.length)];
       // dos parciales para un timbre tipo campana
       for (const [mult, peak] of [
-        [1, 0.06],
-        [2.01, 0.025],
+        [1, 0.03],
+        [2.01, 0.012],
       ] as const) {
         const o = ctx.createOscillator();
         o.type = 'sine';
@@ -210,7 +210,7 @@ export function createTouchAudio(initialMuted = false): TouchSound {
       lp.Q.value = 0.5;
       const g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(0.018, t + 0.04);
+      g.gain.linearRampToValueAtTime(0.01, t + 0.04);
       g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
       src.connect(lp);
       lp.connect(g);
