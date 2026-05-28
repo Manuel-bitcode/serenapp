@@ -60,7 +60,8 @@ export function createBubblesEngine({
     const body = M.Bodies.circle(x, y, radius, {
       restitution: 0.6,
       friction: 0.001,
-      frictionAir: 0.02,
+      // frictionAir alto = más arrastre = suben lento y flotando (no disparadas).
+      frictionAir: 0.04,
       // densidad baja → la gravedad apenas las afecta; la flotabilidad domina.
       density: 0.0006,
       label: 'bubble',
@@ -85,7 +86,7 @@ export function createBubblesEngine({
   /** Empuje hacia arriba (flotabilidad) + jitter horizontal por frame. */
   function applyBuoyancy(): void {
     if (!M) return;
-    const lift = reducedMotion ? 0.00045 : 0.0009;
+    const lift = reducedMotion ? 0.0003 : 0.0006;
     const jitter = reducedMotion ? 0.00012 : 0.0003;
     for (const b of bubbles) {
       M.Body.applyForce(b, b.position, {
@@ -174,7 +175,7 @@ export function createBubblesEngine({
           (mod as unknown as MatterNS)) as MatterNS;
         engine = M.Engine.create();
         // Gravedad muy suave: la flotabilidad la contrarresta para un flotar calmo.
-        engine.gravity.y = reducedMotion ? 0.15 : 0.3;
+        engine.gravity.y = reducedMotion ? 0.1 : 0.2;
         engine.gravity.scale = 0.001;
         for (let i = 0; i < MIN_BUBBLES; i++) {
           spawnBubble(rand(cssH * 0.3, cssH));
@@ -215,9 +216,11 @@ export function createBubblesEngine({
       for (let i = bubbles.length - 1; i >= 0; i--) {
         const b = bubbles[i];
         const r = b.circleRadius ?? 20;
+        // +12px de tolerancia: estallar es más fácil que apuntar al píxel exacto.
+        const hit = r + 12;
         const dx = p.x - b.position.x;
         const dy = p.y - b.position.y;
-        if (dx * dx + dy * dy <= r * r) {
+        if (dx * dx + dy * dy <= hit * hit) {
           popAt(b);
           return;
         }
