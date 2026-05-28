@@ -8,14 +8,11 @@ import {
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
-import ScreenHeader from '../../components/ScreenHeader';
-import {
-  cameraOutline,
-  createOutline,
-  handLeftOutline,
-  trashOutline,
-} from 'ionicons/icons';
+import { trashOutline } from 'ionicons/icons';
 import { useParams } from 'react-router';
+import EmptyState from '../../components/EmptyState';
+import EntryIcon from '../../components/EntryIcon';
+import ScreenHeader from '../../components/ScreenHeader';
 import { deleteEntry, getEntry } from '../../services/entries';
 import {
   emotionByTag,
@@ -46,18 +43,6 @@ function formatFullDate(ts: number): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-const TYPE_ICON: Record<Entry['type'], string> = {
-  touch: handLeftOutline,
-  photo: cameraOutline,
-  text: createOutline,
-};
-
-const TYPE_COLOR: Record<Entry['type'], 'lav' | 'mint' | 'warm'> = {
-  touch: 'lav',
-  photo: 'mint',
-  text: 'warm',
-};
-
 /** Detalle de una entrada del historial (RF5 — revisión completa). */
 const EntryDetailPage: React.FC = () => {
   const router = useIonRouter();
@@ -81,8 +66,6 @@ const EntryDetailPage: React.FC = () => {
     router.goBack();
   };
 
-  const color = entry ? TYPE_COLOR[entry.type] : 'lav';
-
   return (
     <IonPage>
       <ScreenHeader title="Entrada" backHref="/tabs/history" />
@@ -90,17 +73,14 @@ const EntryDetailPage: React.FC = () => {
         <div className="sa-screen detail">
           {!entry ? (
             loaded && (
-              <div className="sa-empty">
-                <div className="sa-empty__title sa-serif">Entrada no encontrada</div>
-                <p>Es posible que la hayas eliminado.</p>
-              </div>
+              <EmptyState title="Entrada no encontrada">
+                Es posible que la hayas eliminado.
+              </EmptyState>
             )
           ) : (
             <>
               <div className="detail__head">
-                <span className={`sa-ic sa-ic--${color}`}>
-                  <IonIcon aria-hidden="true" icon={TYPE_ICON[entry.type]} />
-                </span>
+                <EntryIcon type={entry.type} />
                 <div className="detail__date">{formatFullDate(entry.createdAt)}</div>
               </div>
 

@@ -11,6 +11,7 @@ import { cameraOutline, refreshOutline } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { EMOTIONS, type EmotionTag } from '../../data/types';
 import { addPhotoEntry } from '../../services/entries';
+import EntryIcon from '../../components/EntryIcon';
 import ScreenHeader from '../../components/ScreenHeader';
 import './capture.css';
 
@@ -56,9 +57,7 @@ const CapturePage: React.FC = () => {
         <div className="sa-screen capture">
           {!dataUrl ? (
             <div className="capture__intro">
-              <span className="sa-ic sa-ic--mint capture__intro-ic">
-                <IonIcon aria-hidden="true" icon={cameraOutline} />
-              </span>
+              <EntryIcon type="photo" className="capture__intro-ic" />
               <p className="capture__hint">
                 Captura un objeto, lugar o gesto que represente cómo te sientes.
               </p>

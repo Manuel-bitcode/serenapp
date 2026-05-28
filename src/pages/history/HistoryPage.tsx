@@ -5,13 +5,10 @@ import {
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
+import { sparklesOutline } from 'ionicons/icons';
+import EmptyState from '../../components/EmptyState';
+import EntryIcon from '../../components/EntryIcon';
 import ScreenHeader from '../../components/ScreenHeader';
-import {
-  cameraOutline,
-  createOutline,
-  handLeftOutline,
-  sparklesOutline,
-} from 'ionicons/icons';
 import { useEntries } from '../../hooks/useEntries';
 import {
   emotionByTag,
@@ -72,28 +69,18 @@ function groupByDay(entries: Entry[]): DayGroup[] {
   return groups;
 }
 
-interface CardContent {
-  icon: string;
-  color: 'lav' | 'mint' | 'warm';
-  title: string;
-  desc: string;
-}
-
-/** Deriva ícono, color, título y descripción de una línea según el tipo. */
-function cardContent(entry: Entry): CardContent {
+/** Texto título+descripción para la tarjeta de una entrada (ícono y color
+ *  se resuelven con <EntryIcon type={entry.type} /> vía ENTRY_VISUAL). */
+function cardText(entry: Entry): { title: string; desc: string } {
   switch (entry.type) {
     case 'touch':
       return {
-        icon: handLeftOutline,
-        color: 'lav',
         title: 'Sesión de calma',
         desc: `${touchVariantLabel[entry.variant]} · ${formatDuration(entry.durationMs)}`,
       };
     case 'photo': {
       const emotion = emotionByTag(entry.tag);
       return {
-        icon: cameraOutline,
-        color: 'mint',
         title: 'Capturaste una foto',
         desc: `Etiqueta: ${emotion.label} ${emotion.emoji}`,
       };
@@ -102,8 +89,6 @@ function cardContent(entry: Entry): CardContent {
       const body = entry.body.trim().replace(/\s+/g, ' ');
       const snippet = body.length > 45 ? `${body.slice(0, 45)}…` : body;
       return {
-        icon: createOutline,
-        color: 'warm',
         title: 'Escribiste',
         desc: snippet || 'Entrada de escritura',
       };
@@ -130,34 +115,33 @@ const HistoryPage: React.FC = () => {
       <IonContent className="sa-content" fullscreen>
         <div className="sa-screen hist">
           {isEmpty ? (
-            <div className="sa-empty">
-              <span className="sa-ic sa-ic--lav hist-empty__ic">
-                <IonIcon aria-hidden="true" icon={sparklesOutline} />
-              </span>
-              <div className="sa-empty__title sa-serif">Aún no hay entradas</div>
-              <p>
-                Cuando sientas, captures o escribas algo, lo encontrarás aquí,
-                en orden, solo para ti.
-              </p>
-            </div>
+            <EmptyState
+              icon={
+                <span className="sa-ic sa-ic--lav hist-empty__ic">
+                  <IonIcon aria-hidden="true" icon={sparklesOutline} />
+                </span>
+              }
+              title="Aún no hay entradas"
+            >
+              Cuando sientas, captures o escribas algo, lo encontrarás aquí,
+              en orden, solo para ti.
+            </EmptyState>
           ) : (
             groups.map((group) => (
               <div className="hist-day" key={group.key}>
                 <div className="sa-section-label">{group.header}</div>
                 {group.entries.map((entry) => {
-                  const c = cardContent(entry);
+                  const t = cardText(entry);
                   return (
                     <button
                       key={entry.id}
                       className="sa-card hist-card"
                       onClick={() => router.push(`/entry/${entry.id}`, 'forward', 'push')}
                     >
-                      <span className={`sa-ic sa-ic--${c.color}`}>
-                        <IonIcon aria-hidden="true" icon={c.icon} />
-                      </span>
+                      <EntryIcon type={entry.type} />
                       <span className="hist-card__body">
-                        <span className="hist-card__title">{c.title}</span>
-                        <span className="hist-card__desc">{c.desc}</span>
+                        <span className="hist-card__title">{t.title}</span>
+                        <span className="hist-card__desc">{t.desc}</span>
                       </span>
                       {entry.type === 'photo' && (
                         <img

@@ -1,41 +1,27 @@
 import { useState } from 'react';
 import {
   IonContent,
-  IonIcon,
   IonPage,
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
-import { handLeftOutline, cameraOutline, createOutline } from 'ionicons/icons';
+import EntryIcon from '../../components/EntryIcon';
+import type { EntryType } from '../../data/types';
 import { getProfile } from '../../services/profile';
 import './home.css';
 
-const MODULES = [
-  {
-    key: 'touch',
-    route: '/touch',
-    icon: handLeftOutline,
-    color: 'lav',
-    title: 'Siente',
-    desc: 'Calma con interacciones táctiles',
-  },
-  {
-    key: 'capture',
-    route: '/capture',
-    icon: cameraOutline,
-    color: 'mint',
-    title: 'Captura',
-    desc: 'Una foto de tu sentir ahora',
-  },
-  {
-    key: 'write',
-    route: '/write',
-    icon: createOutline,
-    color: 'warm',
-    title: 'Escribe',
-    desc: 'Pon en palabras tus pensamientos',
-  },
-] as const;
+/** Cada tile referencia el módulo por su EntryType canónico (touch/photo/text);
+ *  el ícono y color salen de ENTRY_VISUAL vía <EntryIcon />. */
+const MODULES: {
+  type: EntryType;
+  route: string;
+  title: string;
+  desc: string;
+}[] = [
+  { type: 'touch', route: '/touch', title: 'Siente', desc: 'Calma con interacciones táctiles' },
+  { type: 'photo', route: '/capture', title: 'Captura', desc: 'Una foto de tu sentir ahora' },
+  { type: 'text', route: '/write', title: 'Escribe', desc: 'Pon en palabras tus pensamientos' },
+];
 
 /** Pantalla 03 — Home / Dashboard. Punto de partida a los 3 módulos. */
 const HomePage: React.FC = () => {
@@ -55,13 +41,11 @@ const HomePage: React.FC = () => {
 
           {MODULES.map((m) => (
             <button
-              key={m.key}
+              key={m.type}
               className="sa-tile"
               onClick={() => router.push(m.route, 'forward', 'push')}
             >
-              <span className={`sa-ic sa-ic--${m.color}`}>
-                <IonIcon aria-hidden="true" icon={m.icon} />
-              </span>
+              <EntryIcon type={m.type} />
               <span className="sa-tile__body">
                 <span className="sa-tile__title">{m.title}</span>
                 <span className="sa-tile__desc">{m.desc}</span>
