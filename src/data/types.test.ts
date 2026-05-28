@@ -25,8 +25,14 @@ describe('catálogos de datos', () => {
     expect(WRITING_PROMPTS.length).toBeGreaterThanOrEqual(5);
   });
 
-  it('RF1: hay exactamente 3 variantes táctiles, todas con etiqueta', () => {
-    expect(TOUCH_VARIANTS).toEqual(['bubbles', 'sand', 'particles']);
+  it('RF1: ≥3 variantes táctiles (4: burbujas/arena/partículas/constelación), todas con etiqueta', () => {
+    expect(TOUCH_VARIANTS).toEqual([
+      'bubbles',
+      'sand',
+      'particles',
+      'constellation',
+    ]);
+    expect(TOUCH_VARIANTS.length).toBeGreaterThanOrEqual(3);
     TOUCH_VARIANTS.forEach((v) => expect(touchVariantLabel[v]).toBeTruthy());
   });
 

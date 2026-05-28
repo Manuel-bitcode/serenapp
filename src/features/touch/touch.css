@@ -40,6 +40,13 @@
   color: #fff;
 }
 
+/* Grupo de acciones a la derecha de la barra (sonido + reordenar). */
+.touch-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .touch-btn {
   pointer-events: auto;
   width: 40px;

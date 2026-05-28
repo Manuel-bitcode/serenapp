@@ -3,7 +3,7 @@
  */
 
 export type EntryType = 'touch' | 'photo' | 'text';
-export type TouchVariant = 'bubbles' | 'sand' | 'particles';
+export type TouchVariant = 'bubbles' | 'sand' | 'particles' | 'constellation';
 export type EmotionTag =
   | 'calma'
   | 'ansiedad'
@@ -89,10 +89,16 @@ export const WRITING_PROMPTS: string[] = [
   '¿Qué le dirías a alguien que se siente como tú ahora?',
 ];
 
-export const TOUCH_VARIANTS: TouchVariant[] = ['bubbles', 'sand', 'particles'];
+export const TOUCH_VARIANTS: TouchVariant[] = [
+  'bubbles',
+  'sand',
+  'particles',
+  'constellation',
+];
 
 export const touchVariantLabel: Record<TouchVariant, string> = {
   bubbles: 'Burbujas',
   sand: 'Arena',
   particles: 'Partículas',
+  constellation: 'Constelación',
 };

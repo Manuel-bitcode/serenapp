@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { IonContent, IonIcon, IonPage, useIonRouter } from '@ionic/react';
-import { close, refresh } from 'ionicons/icons';
+import { close, refresh, volumeHigh, volumeMute } from 'ionicons/icons';
+import { Preferences } from '@capacitor/preferences';
 import { TOUCH_VARIANTS, type TouchVariant } from '../../data/types';
 import { addTouchEntry } from '../../services/entries';
 import { createBubblesEngine } from './engines/bubbles';
 import { createSandEngine } from './engines/sand';
 import { createParticlesEngine } from './engines/particles';
+import { createConstellationEngine } from './engines/constellation';
+import { createTouchAudio, type TouchSound } from './audio';
 import type { EngineOptions, TouchEngine } from './engines/engine';
 import './touch.css';
 
@@ -17,7 +20,10 @@ const HINTS: Record<TouchVariant, string> = {
   bubbles: 'Toca las burbujas para estallarlas',
   sand: 'Desliza para mover la arena',
   particles: 'Mueve las partículas con el dedo',
+  constellation: 'Toca para crear estrellas; arrastra para unirlas',
 };
+
+const SOUND_KEY = 'serenapp.sound';
 
 /** Solo se registra la sesión si duró más que esto (evita toques accidentales). */
 const MIN_SESSION_MS = 2000;
@@ -27,7 +33,16 @@ const FACTORIES: Record<TouchVariant, (opts: EngineOptions) => TouchEngine> = {
   bubbles: createBubblesEngine,
   sand: createSandEngine,
   particles: createParticlesEngine,
+  constellation: createConstellationEngine,
 };
+
+/** Permite forzar una experiencia con ?v=… (demo / pruebas visuales). */
+function variantFromQuery(): TouchVariant | null {
+  const v = new URLSearchParams(window.location.search).get('v');
+  return v && (TOUCH_VARIANTS as string[]).includes(v)
+    ? (v as TouchVariant)
+    : null;
+}
 
 function pickVariant(exclude?: TouchVariant): TouchVariant {
   const pool = exclude
@@ -47,10 +62,13 @@ function formatClock(ms: number): string {
 const TouchPage: React.FC = () => {
   const router = useIonRouter();
 
-  // El variant se fija una vez al montar (aleatorio cada vez que se abre la pantalla).
-  const [variant, setVariant] = useState<TouchVariant>(() => pickVariant());
+  // El variant se fija una vez al montar (aleatorio, o forzado con ?v= para demo/test).
+  const [variant, setVariant] = useState<TouchVariant>(
+    () => variantFromQuery() ?? pickVariant(),
+  );
   const [elapsed, setElapsed] = useState(0);
   const [hintVisible, setHintVisible] = useState(true);
+  const [muted, setMuted] = useState(false);
 
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -59,6 +77,12 @@ const TouchPage: React.FC = () => {
   const startedAtRef = useRef<number>(Date.now());
   // Guarda contra doble-registro (StrictMode monta/desmonta dos veces en dev).
   const recordedRef = useRef(false);
+
+  // Audio procedural: instancia única; el AudioContext nace en el primer gesto.
+  const audioRef = useRef<TouchSound | null>(null);
+  if (audioRef.current === null) audioRef.current = createTouchAudio(false);
+  const audioStartedRef = useRef(false);
+  const mutedRef = useRef(false);
 
   /** Registra la sesión actual una sola vez si superó el umbral. */
   const recordSession = useCallback(() => {
@@ -97,7 +121,11 @@ const TouchPage: React.FC = () => {
       typeof window.matchMedia === 'function' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const engine = FACTORIES[variant]({ canvas, reducedMotion });
+    const engine = FACTORIES[variant]({
+      canvas,
+      reducedMotion,
+      sound: audioRef.current ?? undefined,
+    });
     engineRef.current = engine;
 
     const sizeToStage = () => {
@@ -118,7 +146,17 @@ const TouchPage: React.FC = () => {
     };
 
     const onDown = (e: PointerEvent) => {
-      canvas.setPointerCapture?.(e.pointerId);
+      // El AudioContext debe (re)activarse tras un gesto del usuario (autoplay).
+      if (!audioStartedRef.current) {
+        audioStartedRef.current = true;
+        audioRef.current?.resume();
+        if (!mutedRef.current) audioRef.current?.startAmbient();
+      }
+      try {
+        canvas.setPointerCapture?.(e.pointerId);
+      } catch {
+        /* pointerId no activo (p. ej. eventos sintéticos): ignorar */
+      }
       engine.pointerDown(toSample(e.clientX, e.clientY));
     };
     const onMove = (e: PointerEvent) => {
@@ -129,7 +167,11 @@ const TouchPage: React.FC = () => {
     };
     const onUp = (e: PointerEvent) => {
       engine.pointerUp(toSample(e.clientX, e.clientY));
-      canvas.releasePointerCapture?.(e.pointerId);
+      try {
+        canvas.releasePointerCapture?.(e.pointerId);
+      } catch {
+        /* ignore */
+      }
     };
 
     // touch-action:none ya está en .sa-canvas-stage → no hace falta preventDefault.
@@ -152,7 +194,38 @@ const TouchPage: React.FC = () => {
   // Registro al desmontar (cubre back físico de Android / navegación externa, RF8).
   useEffect(() => recordSession, [recordSession]);
 
+  // Carga la preferencia de sonido (por defecto activado).
+  useEffect(() => {
+    let active = true;
+    void Preferences.get({ key: SOUND_KEY }).then(({ value }) => {
+      if (!active || value !== 'off') return;
+      mutedRef.current = true;
+      setMuted(true);
+      audioRef.current?.setMuted(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Libera el audio al desmontar.
+  useEffect(() => () => audioRef.current?.dispose(), []);
+
+  const toggleMute = useCallback(() => {
+    const next = !mutedRef.current;
+    mutedRef.current = next;
+    setMuted(next);
+    const a = audioRef.current;
+    a?.setMuted(next);
+    if (!next) {
+      a?.resume();
+      a?.startAmbient();
+    }
+    void Preferences.set({ key: SOUND_KEY, value: next ? 'off' : 'on' });
+  }, []);
+
   const handleClose = useCallback(() => {
+    audioRef.current?.stopAmbient();
     recordSession();
     router.goBack();
   }, [recordSession, router]);
@@ -192,14 +265,28 @@ const TouchPage: React.FC = () => {
                 {formatClock(elapsed)}
               </div>
 
-              <button
-                type="button"
-                className="touch-btn"
-                aria-label="Otra experiencia"
-                onClick={handleReshuffle}
-              >
-                <IonIcon icon={refresh} aria-hidden="true" />
-              </button>
+              <div className="touch-actions">
+                <button
+                  type="button"
+                  className="touch-btn"
+                  aria-label={muted ? 'Activar sonido' : 'Silenciar sonido'}
+                  aria-pressed={muted}
+                  onClick={toggleMute}
+                >
+                  <IonIcon
+                    icon={muted ? volumeMute : volumeHigh}
+                    aria-hidden="true"
+                  />
+                </button>
+                <button
+                  type="button"
+                  className="touch-btn"
+                  aria-label="Otra experiencia"
+                  onClick={handleReshuffle}
+                >
+                  <IonIcon icon={refresh} aria-hidden="true" />
+                </button>
+              </div>
             </div>
 
             <p
