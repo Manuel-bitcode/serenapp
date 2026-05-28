@@ -1,13 +1,7 @@
-import { useState } from 'react';
-import {
-  IonContent,
-  IonPage,
-  useIonRouter,
-  useIonViewWillEnter,
-} from '@ionic/react';
+import { IonContent, IonPage } from '@ionic/react';
 import EntryIcon from '../../components/entry-icon/EntryIcon';
 import type { EntryType } from '../../data/types';
-import { getProfile } from '../../services/profile';
+import { useHomePage } from './useHomePage';
 import './home.css';
 
 /** Cada tile referencia el módulo por su EntryType canónico (touch/photo/text);
@@ -25,12 +19,7 @@ const MODULES: {
 
 /** Pantalla 03 — Home / Dashboard. Punto de partida a los 3 módulos. */
 const HomePage: React.FC = () => {
-  const router = useIonRouter();
-  const [name, setName] = useState('');
-
-  useIonViewWillEnter(() => {
-    void getProfile().then((p) => setName(p.name));
-  });
+  const { name, go } = useHomePage();
 
   return (
     <IonPage>
@@ -43,7 +32,7 @@ const HomePage: React.FC = () => {
             <button
               key={m.type}
               className="sa-tile"
-              onClick={() => router.push(m.route, 'forward', 'push')}
+              onClick={() => go(m.route)}
             >
               <EntryIcon type={m.type} />
               <span className="sa-tile__body">

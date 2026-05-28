@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   IonAlert,
   IonButton,
@@ -16,23 +15,11 @@ import {
   IonSelect,
   IonSelectOption,
   IonToggle,
-  useIonRouter,
-  useIonViewWillEnter,
 } from '@ionic/react';
-import ScreenHeader from '../../components/screen-header/ScreenHeader';
 import { chevronForward } from 'ionicons/icons';
-import { useSettings } from '../../hooks/useSettings';
-import { useProfile } from '../../hooks/useProfile';
-import { setName as persistName } from '../../services/profile';
-import { syncReminder, notificationsAvailable } from '../../services/notifications';
-import {
-  clearAllEntries,
-  entryCounts,
-  type EntryCounts,
-} from '../../services/entries';
-import { clearSettings } from '../../services/settings';
-import { clearProfile } from '../../services/profile';
-import type { ThemePref, TextScale } from '../../data/types';
+import ScreenHeader from '../../components/screen-header/ScreenHeader';
+import type { TextScale, ThemePref } from '../../data/types';
+import { useSettingsPage } from './useSettingsPage';
 import './settings.css';
 
 const APP_VERSION = '0.1.0';
@@ -45,56 +32,7 @@ const textScaleLabel: Record<TextScale, string> = {
 
 /** Pantalla 09 — Ajustes: perfil (RF7), notificaciones (RF6), apariencia (RNF5), datos (RNF3). */
 const SettingsPage: React.FC = () => {
-  const router = useIonRouter();
-  const { settings, update } = useSettings();
-  const { profile, refresh: refreshProfile } = useProfile();
-
-  const [counts, setCounts] = useState<EntryCounts | null>(null);
-  const [nameAlertOpen, setNameAlertOpen] = useState(false);
-  const [timeModalOpen, setTimeModalOpen] = useState(false);
-  const [wipeStep1Open, setWipeStep1Open] = useState(false);
-  const [wipeStep2Open, setWipeStep2Open] = useState(false);
-
-  useIonViewWillEnter(() => {
-    void entryCounts().then(setCounts);
-    void refreshProfile();
-  });
-
-  const profileName = profile?.name ?? '';
-  const reminderEnabled = settings?.reminderEnabled ?? false;
-  const reminderTime = settings?.reminderTime ?? '20:30';
-
-  // Persistir recordatorio + reprogramar la notificación local nativa (RF6).
-  const applyReminder = async (enabled: boolean, time: string) => {
-    await update({ reminderEnabled: enabled, reminderTime: time });
-    await syncReminder(enabled, time, profileName);
-  };
-
-  const handleToggleReminder = (enabled: boolean) => {
-    void applyReminder(enabled, reminderTime);
-  };
-
-  const handleTimeChange = (value: string | string[] | null | undefined) => {
-    const raw = Array.isArray(value) ? value[0] : value;
-    if (!raw) return;
-    // IonDatetime devuelve ISO; nos quedamos con HH:mm.
-    const time = raw.includes('T') ? raw.slice(11, 16) : raw.slice(0, 5);
-    void applyReminder(reminderEnabled, time);
-  };
-
-  const handleWipe = async () => {
-    await clearAllEntries();
-    await clearSettings();
-    await clearProfile();
-    router.push('/onboarding', 'root', 'replace');
-  };
-
-  // Valor ISO para el datetime a partir de "HH:mm".
-  const reminderIso = `2024-01-01T${reminderTime}:00`;
-
-  const countsLabel = counts
-    ? `${counts.text} escritas · ${counts.photo} fotos · ${counts.touch} sesiones`
-    : 'Cargando…';
+  const s = useSettingsPage();
 
   return (
     <IonPage>
@@ -104,13 +42,13 @@ const SettingsPage: React.FC = () => {
           {/* ---------- Perfil local (RF7) ---------- */}
           <div className="sa-section-label">Perfil local</div>
           <IonList inset className="set-list">
-            <IonItem button detail={false} onClick={() => setNameAlertOpen(true)}>
+            <IonItem button detail={false} onClick={s.openNameAlert}>
               <IonLabel>
                 <h3>Nombre</h3>
                 <p>Se muestra en el saludo del Home</p>
               </IonLabel>
               <IonNote slot="end" className="set-val">
-                {profileName || 'Sin nombre'}
+                {s.profileName || 'Sin nombre'}
               </IonNote>
               <IonIcon
                 aria-hidden="true"
@@ -131,23 +69,23 @@ const SettingsPage: React.FC = () => {
               </IonLabel>
               <IonToggle
                 slot="end"
-                checked={reminderEnabled}
-                onIonChange={(e) => handleToggleReminder(e.detail.checked)}
+                checked={s.reminderEnabled}
+                onIonChange={(e) => s.toggleReminder(e.detail.checked)}
                 aria-label="Activar recordatorio diario"
               />
             </IonItem>
             <IonItem
               button
               detail={false}
-              disabled={!reminderEnabled}
-              onClick={() => setTimeModalOpen(true)}
+              disabled={!s.reminderEnabled}
+              onClick={s.openTimeModal}
             >
               <IonLabel>
                 <h3>Hora</h3>
                 <p>Cuándo llega la notificación</p>
               </IonLabel>
               <IonNote slot="end" className="set-val">
-                {reminderTime}
+                {s.reminderTime}
               </IonNote>
               <IonIcon
                 aria-hidden="true"
@@ -157,7 +95,7 @@ const SettingsPage: React.FC = () => {
               />
             </IonItem>
           </IonList>
-          {!notificationsAvailable() && (
+          {!s.nativeNotifications && (
             <p className="set-hint">
               El recordatorio se activará en tu dispositivo (Android/iOS).
             </p>
@@ -174,9 +112,9 @@ const SettingsPage: React.FC = () => {
             </IonItem>
             <IonItem lines="none" className="set-segment-wrap">
               <IonSegment
-                value={settings?.theme ?? 'system'}
+                value={s.settings?.theme ?? 'system'}
                 onIonChange={(e) =>
-                  void update({ theme: (e.detail.value as ThemePref) ?? 'system' })
+                  void s.update({ theme: (e.detail.value as ThemePref) ?? 'system' })
                 }
               >
                 <IonSegmentButton value="system">
@@ -198,9 +136,9 @@ const SettingsPage: React.FC = () => {
               <IonSelect
                 slot="end"
                 interface="action-sheet"
-                value={settings?.textScale ?? 'normal'}
+                value={s.settings?.textScale ?? 'normal'}
                 onIonChange={(e) =>
-                  void update({ textScale: e.detail.value as TextScale })
+                  void s.update({ textScale: e.detail.value as TextScale })
                 }
                 aria-label="Tamaño de texto"
               >
@@ -217,14 +155,10 @@ const SettingsPage: React.FC = () => {
             <IonItem>
               <IonLabel>
                 <h3>Tus entradas</h3>
-                <p>{countsLabel}</p>
+                <p>{s.countsLabel}</p>
               </IonLabel>
             </IonItem>
-            <IonItem
-              button
-              detail={false}
-              onClick={() => router.push('/onboarding', 'forward', 'push')}
-            >
+            <IonItem button detail={false} onClick={s.goToTutorial}>
               <IonLabel>
                 <h3>Volver a ver el tutorial</h3>
                 <p>Onboarding inicial</p>
@@ -236,12 +170,7 @@ const SettingsPage: React.FC = () => {
                 className="set-chev"
               />
             </IonItem>
-            <IonItem
-              button
-              detail={false}
-              className="set-danger"
-              onClick={() => setWipeStep1Open(true)}
-            >
+            <IonItem button detail={false} className="set-danger" onClick={s.openWipe}>
               <IonLabel color="danger">
                 <h3>Borrar todos los datos</h3>
                 <p>Acción irreversible · solo local</p>
@@ -268,14 +197,14 @@ const SettingsPage: React.FC = () => {
 
         {/* Editar nombre (RF7) */}
         <IonAlert
-          isOpen={nameAlertOpen}
+          isOpen={s.nameAlertOpen}
           header="Tu nombre"
           message="Se usa solo en tu dispositivo para saludarte."
           inputs={[
             {
               name: 'name',
               type: 'text',
-              value: profileName,
+              value: s.profileName,
               placeholder: 'Tu nombre',
               attributes: { maxlength: 40 },
             },
@@ -284,31 +213,26 @@ const SettingsPage: React.FC = () => {
             { text: 'Cancelar', role: 'cancel' },
             {
               text: 'Guardar',
-              handler: (data: { name?: string }) => {
-                void (async () => {
-                  await persistName(data.name ?? '');
-                  await refreshProfile();
-                })();
-              },
+              handler: (data: { name?: string }) => s.saveName(data.name ?? ''),
             },
           ]}
-          onDidDismiss={() => setNameAlertOpen(false)}
+          onDidDismiss={s.closeNameAlert}
         />
 
         {/* Selector de hora del recordatorio (RF6) */}
         <IonModal
-          isOpen={timeModalOpen}
-          onDidDismiss={() => setTimeModalOpen(false)}
+          isOpen={s.timeModalOpen}
+          onDidDismiss={s.closeTimeModal}
           className="set-time-modal"
         >
           <div className="set-time">
             <IonDatetime
               presentation="time"
-              value={reminderIso}
+              value={s.reminderIso}
               locale="es-ES"
-              onIonChange={(e) => handleTimeChange(e.detail.value)}
+              onIonChange={(e) => s.setReminderFromIso(e.detail.value)}
             />
-            <IonButton expand="block" onClick={() => setTimeModalOpen(false)}>
+            <IonButton expand="block" onClick={s.closeTimeModal}>
               Listo
             </IonButton>
           </div>
@@ -316,36 +240,24 @@ const SettingsPage: React.FC = () => {
 
         {/* Borrar datos — doble confirmación (RNF3) */}
         <IonAlert
-          isOpen={wipeStep1Open}
+          isOpen={s.wipeStep1Open}
           header="Borrar todos los datos"
           message="Se eliminarán tus entradas, ajustes y nombre. Esta acción no se puede deshacer."
           buttons={[
             { text: 'Cancelar', role: 'cancel' },
-            {
-              text: 'Continuar',
-              role: 'destructive',
-              handler: () => {
-                setWipeStep2Open(true);
-              },
-            },
+            { text: 'Continuar', role: 'destructive', handler: s.advanceWipe },
           ]}
-          onDidDismiss={() => setWipeStep1Open(false)}
+          onDidDismiss={s.closeWipe1}
         />
         <IonAlert
-          isOpen={wipeStep2Open}
+          isOpen={s.wipeStep2Open}
           header="¿Seguro?"
           message="Confirma para borrar definitivamente todo en este dispositivo."
           buttons={[
             { text: 'No, conservar', role: 'cancel' },
-            {
-              text: 'Sí, borrar todo',
-              role: 'destructive',
-              handler: () => {
-                void handleWipe();
-              },
-            },
+            { text: 'Sí, borrar todo', role: 'destructive', handler: s.confirmWipe },
           ]}
-          onDidDismiss={() => setWipeStep2Open(false)}
+          onDidDismiss={s.closeWipe2}
         />
       </IonContent>
     </IonPage>

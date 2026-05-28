@@ -1,18 +1,15 @@
-import { useState } from 'react';
 import {
   IonButton,
   IonContent,
   IonIcon,
   IonPage,
   IonToast,
-  useIonRouter,
 } from '@ionic/react';
 import { cameraOutline, refreshOutline } from 'ionicons/icons';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { EMOTIONS, type EmotionTag } from '../../data/types';
-import { addPhotoEntry } from '../../services/entries';
+import { EMOTIONS } from '../../data/types';
 import EntryIcon from '../../components/entry-icon/EntryIcon';
 import ScreenHeader from '../../components/screen-header/ScreenHeader';
+import { useCapturePage } from './useCapturePage';
 import './capture.css';
 
 /**
@@ -22,32 +19,8 @@ import './capture.css';
  * persiste vía addPhotoEntry → Dexie. Sin red.
  */
 const CapturePage: React.FC = () => {
-  const router = useIonRouter();
-  const [dataUrl, setDataUrl] = useState<string | null>(null);
-  const [tag, setTag] = useState<EmotionTag | null>(null);
-  const [saved, setSaved] = useState(false);
-
-  // Abre la cámara/galería del dispositivo (en web usa @ionic/pwa-elements).
-  const pickPhoto = async () => {
-    try {
-      const photo = await Camera.getPhoto({
-        resultType: CameraResultType.DataUrl,
-        source: CameraSource.Prompt, // cámara O galería (RF2)
-        quality: 70,
-      });
-      if (photo.dataUrl) {
-        setDataUrl(photo.dataUrl);
-      }
-    } catch {
-      // getPhoto lanza si el usuario cancela: no es un error real, lo ignoramos.
-    }
-  };
-
-  const save = async () => {
-    if (!dataUrl || !tag) return;
-    await addPhotoEntry(dataUrl, tag);
-    setSaved(true);
-  };
+  const { dataUrl, tag, setTag, saved, pickPhoto, save, finish, canSave } =
+    useCapturePage();
 
   return (
     <IonPage>
@@ -117,7 +90,7 @@ const CapturePage: React.FC = () => {
                 expand="block"
                 color="secondary"
                 className="capture__save"
-                disabled={!dataUrl || !tag}
+                disabled={!canSave}
                 onClick={() => void save()}
               >
                 Guardar entrada
@@ -131,7 +104,7 @@ const CapturePage: React.FC = () => {
         isOpen={saved}
         message="Entrada guardada"
         duration={1400}
-        onDidDismiss={() => router.push('/tabs/history', 'root', 'replace')}
+        onDidDismiss={finish}
       />
     </IonPage>
   );

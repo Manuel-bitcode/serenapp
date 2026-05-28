@@ -1,12 +1,5 @@
-import { useState } from 'react';
-import {
-  IonButton,
-  IonContent,
-  IonInput,
-  IonPage,
-  useIonRouter,
-} from '@ionic/react';
-import { completeOnboarding } from '../../services/profile';
+import { IonButton, IonContent, IonInput, IonPage } from '@ionic/react';
+import { useOnboardingPage } from './useOnboardingPage';
 import './onboarding.css';
 
 interface Slide {
@@ -35,24 +28,8 @@ const SLIDES: Slide[] = [
 
 /** Pantalla 02 — Onboarding + captura del nombre local (RF7, RNF4). */
 const OnboardingPage: React.FC = () => {
-  const router = useIonRouter();
-  const [step, setStep] = useState(0);
-  const [name, setName] = useState('');
-  const isNameStep = step === SLIDES.length;
-
-  const finish = async () => {
-    await completeOnboarding(name);
-    router.push('/tabs/home', 'root', 'replace');
-  };
-
-  const next = () => {
-    if (isNameStep) {
-      void finish();
-    } else {
-      setStep((s) => s + 1);
-    }
-  };
-
+  const { step, name, setName, isNameStep, next, skip, finish } =
+    useOnboardingPage();
   const slide = SLIDES[Math.min(step, SLIDES.length - 1)];
 
   return (
@@ -60,7 +37,7 @@ const OnboardingPage: React.FC = () => {
       <IonContent fullscreen className="sa-content">
         <div className="onb">
           {!isNameStep && (
-            <button className="onb__skip" onClick={() => setStep(SLIDES.length)}>
+            <button className="onb__skip" onClick={skip}>
               Saltar
             </button>
           )}

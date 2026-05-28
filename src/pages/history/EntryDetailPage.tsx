@@ -1,24 +1,16 @@
-import { useState } from 'react';
 import {
   IonAlert,
   IonButton,
   IonContent,
   IonIcon,
   IonPage,
-  useIonRouter,
-  useIonViewWillEnter,
 } from '@ionic/react';
 import { trashOutline } from 'ionicons/icons';
-import { useParams } from 'react-router';
 import EmptyState from '../../components/empty-state/EmptyState';
 import EntryIcon from '../../components/entry-icon/EntryIcon';
 import ScreenHeader from '../../components/screen-header/ScreenHeader';
-import { deleteEntry, getEntry } from '../../services/entries';
-import {
-  emotionByTag,
-  touchVariantLabel,
-  type Entry,
-} from '../../data/types';
+import { emotionByTag, touchVariantLabel } from '../../data/types';
+import { useEntryDetailPage } from './useEntryDetailPage';
 import './history.css';
 
 /** mm:ss legible a partir de una duración en ms. */
@@ -43,28 +35,10 @@ function formatFullDate(ts: number): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-/** Detalle de una entrada del historial (RF5 — revisión completa). */
+/** Detalle de una entrada del historial (RF5). */
 const EntryDetailPage: React.FC = () => {
-  const router = useIonRouter();
-  const { id } = useParams<{ id: string }>();
-  const [entry, setEntry] = useState<Entry | undefined>(undefined);
-  const [loaded, setLoaded] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-
-  useIonViewWillEnter(() => {
-    void (async () => {
-      const found = await getEntry(Number(id));
-      setEntry(found);
-      setLoaded(true);
-    })();
-  });
-
-  const handleDelete = async () => {
-    if (entry?.id !== undefined) {
-      await deleteEntry(entry.id);
-    }
-    router.goBack();
-  };
+  const { entry, loaded, confirmOpen, openConfirm, closeConfirm, handleDelete } =
+    useEntryDetailPage();
 
   return (
     <IonPage>
@@ -122,7 +96,7 @@ const EntryDetailPage: React.FC = () => {
                 fill="clear"
                 color="danger"
                 className="detail__delete"
-                onClick={() => setConfirmOpen(true)}
+                onClick={openConfirm}
               >
                 <IonIcon aria-hidden="true" icon={trashOutline} slot="start" />
                 Eliminar entrada
@@ -145,7 +119,7 @@ const EntryDetailPage: React.FC = () => {
               },
             },
           ]}
-          onDidDismiss={() => setConfirmOpen(false)}
+          onDidDismiss={closeConfirm}
         />
       </IonContent>
     </IonPage>
