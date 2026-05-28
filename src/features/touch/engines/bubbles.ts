@@ -28,6 +28,7 @@ const SPAWN_MS = 1400;
 export function createBubblesEngine({
   canvas,
   reducedMotion,
+  sound,
 }: EngineOptions): TouchEngine {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('bubbles: 2D context unavailable');
@@ -78,6 +79,7 @@ export function createBubblesEngine({
   function popAt(body: Matter.Body): void {
     pops.push({ x: body.position.x, y: body.position.y, r: body.circleRadius ?? 20, t: 0 });
     removeBubble(body);
+    sound?.pop();
   }
 
   /** Empuje hacia arriba (flotabilidad) + jitter horizontal por frame. */

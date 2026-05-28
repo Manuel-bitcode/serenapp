@@ -19,6 +19,7 @@ const MAX_ROWS = 280;
 export function createSandEngine({
   canvas,
   reducedMotion,
+  sound,
 }: EngineOptions): TouchEngine {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('sand: 2D context unavailable');
@@ -167,11 +168,13 @@ export function createSandEngine({
       painting = true;
       last = p;
       deposit(p.x, p.y);
+      sound?.grain();
     },
 
     pointerMove(p: PointerSample): void {
       if (!painting) return;
       paintLine(p);
+      sound?.grain();
     },
 
     pointerUp(): void {

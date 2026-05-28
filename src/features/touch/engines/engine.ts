@@ -5,6 +5,7 @@
  * (TouchPage) crea el motor, le pasa pointerdown/move/up en tiempo real y llama a
  * stop() para limpiar (cancelar rAF, intervalos, listeners, engines) en el unmount.
  */
+import type { TouchSound } from '../audio';
 
 /** Punto del puntero en coordenadas CSS del canvas (origen arriba-izquierda). */
 export interface PointerSample {
@@ -32,6 +33,8 @@ export interface EngineOptions {
   canvas: HTMLCanvasElement;
   /** RNF1/accesibilidad: reduce spawns y velocidad si el SO pide menos movimiento. */
   reducedMotion: boolean;
+  /** Audio procedural opcional; el motor dispara efectos al interactuar. */
+  sound?: TouchSound;
 }
 
 /** Lee un token de color del tema (CSS var) resuelto sobre el documento. */

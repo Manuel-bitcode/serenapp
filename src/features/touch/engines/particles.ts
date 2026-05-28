@@ -23,6 +23,7 @@ const REPEL_RADIUS = 110;
 export function createParticlesEngine({
   canvas,
   reducedMotion,
+  sound,
 }: EngineOptions): TouchEngine {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('particles: 2D context unavailable');
@@ -144,10 +145,12 @@ export function createParticlesEngine({
 
     pointerDown(p: PointerSample): void {
       pointer = p;
+      sound?.tone();
     },
 
     pointerMove(p: PointerSample): void {
       pointer = p;
+      sound?.tone();
     },
 
     pointerUp(): void {
