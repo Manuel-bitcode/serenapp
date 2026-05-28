@@ -355,13 +355,24 @@ export function createConstellationEngine({
 
     pointerMove(p: PointerSample): void {
       if (!dragging || !lastInPath) return;
-      const dx = p.x - lastInPath.x;
-      const dy = p.y - lastInPath.y;
-      if (dx * dx + dy * dy < STEP_PX * STEP_PX) return;
-      const next = placeStar(p.x, p.y);
-      if (next) {
-        links.push({ from: lastInPath, to: next });
-        lastInPath = next;
+      // Interpolamos a lo largo del trazo cada STEP_PX, no solo en el punto
+      // final. Sin esto, un arrastre rápido produce UN solo segmento largo
+      // entre dos puntos distantes y se ve como una línea recta abrupta.
+      const from = lastInPath;
+      const dx = p.x - from.x;
+      const dy = p.y - from.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < STEP_PX) return;
+      const ux = dx / dist;
+      const uy = dy / dist;
+      let step = STEP_PX;
+      while (step <= dist) {
+        const next = placeStar(from.x + ux * step, from.y + uy * step);
+        if (next) {
+          links.push({ from: lastInPath, to: next });
+          lastInPath = next;
+        }
+        step += STEP_PX;
       }
     },
 
