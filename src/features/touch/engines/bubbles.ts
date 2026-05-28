@@ -1,23 +1,25 @@
-/* SerenApp · RF1 — experiencia "Burbujas".
+/* SerenApp · RF1 — experiencia "Burbujas" (físicas matter.js + render PixiJS).
  *
- * Físicas reales con matter.js (import dinámico, RNF1). Las burbujas son cuerpos
- * circulares con una leve flotabilidad hacia arriba y jitter horizontal suave.
- * El render es PROPIO (no Matter.Render): leemos las posiciones de los cuerpos y
- * pintamos círculos lavanda translúcidos con brillo, para controlar el look.
- * Tocar una burbuja la estalla (se elimina el cuerpo + ripple de pop).
- * Se reponen burbujas periódicamente para mantener ~8–12 en pantalla.
+ * matter.js mantiene la física (flotabilidad, jitter, gravedad muy suave).
+ * El render es WebGL via PixiJS con AdvancedBloomFilter → glow real "luz dentro
+ * del agua". Cada cuerpo de Matter tiene un Sprite vinculado; al tocar una
+ * burbuja se elimina y se añade un ripple que escala+desvanece.
  */
 import type Matter from 'matter-js';
-import { cssVar, type EngineOptions, type PointerSample, type TouchEngine } from './engine';
+import {
+  cssVar,
+  type EngineOptions,
+  type PointerSample,
+  type TouchEngine,
+} from './engine';
 
-/** Acceso a las clases del namespace de Matter (tipado fuerte, sin React). */
 type MatterNS = typeof Matter;
 
-interface Pop {
+interface PopRipple {
   x: number;
   y: number;
   r: number;
-  /** 0→1 progreso de la animación del ripple. */
+  /** 0→1 progreso de animación. */
   t: number;
 }
 
@@ -25,32 +27,76 @@ const MIN_BUBBLES = 8;
 const MAX_BUBBLES = 12;
 const SPAWN_MS = 1400;
 
+function hexToInt(s: string, fallback: number): number {
+  const m = s.trim().match(/^#([0-9a-fA-F]{6})$/);
+  return m ? parseInt(m[1], 16) : fallback;
+}
+
+/** Textura de burbuja: degradado radial lavanda + reflejo especular blanco. */
+function makeBubbleTexture(
+  PIXIns: typeof import('pixi.js'),
+): import('pixi.js').Texture {
+  const SIZE = 128;
+  const off = document.createElement('canvas');
+  off.width = SIZE;
+  off.height = SIZE;
+  const c = off.getContext('2d');
+  if (!c) throw new Error('bubbles: 2D context for texture unavailable');
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
+  // cuerpo: brillo central → lavanda → transparente
+  const body = c.createRadialGradient(
+    cx - SIZE * 0.18,
+    cy - SIZE * 0.18,
+    SIZE * 0.05,
+    cx,
+    cy,
+    SIZE / 2,
+  );
+  body.addColorStop(0, 'rgba(255,255,255,0.55)');
+  body.addColorStop(0.55, 'rgba(184,166,217,0.4)');
+  body.addColorStop(1, 'rgba(123,104,166,0)');
+  c.fillStyle = body;
+  c.beginPath();
+  c.arc(cx, cy, SIZE / 2, 0, Math.PI * 2);
+  c.fill();
+  // contorno tenue
+  c.strokeStyle = 'rgba(255,255,255,0.35)';
+  c.lineWidth = 1.5;
+  c.stroke();
+  // reflejo especular
+  c.beginPath();
+  c.arc(cx - SIZE * 0.18, cy - SIZE * 0.18, SIZE * 0.09, 0, Math.PI * 2);
+  c.fillStyle = 'rgba(255,255,255,0.65)';
+  c.fill();
+  return PIXIns.Texture.from(off);
+}
+
 export function createBubblesEngine({
   canvas,
   reducedMotion,
   sound,
 }: EngineOptions): TouchEngine {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('bubbles: 2D context unavailable');
-  const render = ctx;
+  let app: import('pixi.js').Application | null = null;
+  let container: import('pixi.js').Container | null = null;
+  let ripplesGfx: import('pixi.js').Graphics | null = null;
+  let texture: import('pixi.js').Texture | null = null;
 
   let M: MatterNS | null = null;
   let engine: Matter.Engine | null = null;
-  let raf = 0;
-  let spawnTimer: ReturnType<typeof setInterval> | null = null;
+
+  let cssW = 1;
+  let cssH = 1;
   let running = false;
+  let spawnTimer: ReturnType<typeof setInterval> | null = null;
+  let tickerFn: (() => void) | null = null;
+  const bubbles: { body: Matter.Body; sprite: import('pixi.js').Sprite }[] = [];
+  const pops: PopRipple[] = [];
 
-  // Tamaño en px CSS (independiente del backing store escalado por dpr).
-  let cssW = canvas.clientWidth || 1;
-  let cssH = canvas.clientHeight || 1;
+  const lavTint = () => hexToInt(cssVar('--sa-lav-300', '#b8a6d9'), 0xb8a6d9);
+  const ripStroke = () => hexToInt(cssVar('--sa-lav-500', '#7b68a6'), 0x7b68a6);
 
-  const bubbles: Matter.Body[] = [];
-  const pops: Pop[] = [];
-
-  const lav300 = () => cssVar('--sa-lav-300', '#b8a6d9');
-  const lav500 = () => cssVar('--sa-lav-500', '#7b68a6');
-
-  const rand = (min: number, max: number) => min + Math.random() * (max - min);
+  const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
   function spawnBubble(atY?: number): void {
     if (!M || !engine) return;
@@ -60,81 +106,72 @@ export function createBubblesEngine({
     const body = M.Bodies.circle(x, y, radius, {
       restitution: 0.6,
       friction: 0.001,
-      // frictionAir alto = más arrastre = suben lento y flotando (no disparadas).
+      // frictionAir alto = más arrastre = suben lento y flotando.
       frictionAir: 0.04,
-      // densidad baja → la gravedad apenas las afecta; la flotabilidad domina.
       density: 0.0006,
       label: 'bubble',
     });
-    bubbles.push(body);
+    bubbles.push({ body, sprite: spriteFor(body, radius) });
     M.Composite.add(engine.world, body);
   }
 
-  function removeBubble(body: Matter.Body): void {
+  // Helper que necesita acceso a PIXIns; lo cierro con una variable seteada en start().
+  // (Se sobreescribe al iniciar Pixi.)
+  let spriteFor: (body: Matter.Body, radius: number) => import('pixi.js').Sprite =
+    () => {
+      throw new Error('spriteFor not initialized');
+    };
+
+  function removeBubble(idx: number): void {
     if (!M || !engine) return;
-    const i = bubbles.indexOf(body);
-    if (i >= 0) bubbles.splice(i, 1);
-    M.Composite.remove(engine.world, body);
+    const b = bubbles[idx];
+    if (!b) return;
+    try {
+      b.sprite.destroy();
+    } catch {
+      /* ignore */
+    }
+    M.Composite.remove(engine.world, b.body);
+    bubbles.splice(idx, 1);
   }
 
-  function popAt(body: Matter.Body): void {
-    pops.push({ x: body.position.x, y: body.position.y, r: body.circleRadius ?? 20, t: 0 });
-    removeBubble(body);
+  function popAt(idx: number): void {
+    const b = bubbles[idx];
+    if (!b) return;
+    pops.push({
+      x: b.body.position.x,
+      y: b.body.position.y,
+      r: b.body.circleRadius ?? 20,
+      t: 0,
+    });
+    removeBubble(idx);
     sound?.pop();
   }
 
-  /** Empuje hacia arriba (flotabilidad) + jitter horizontal por frame. */
   function applyBuoyancy(): void {
     if (!M) return;
     const lift = reducedMotion ? 0.0003 : 0.0006;
     const jitter = reducedMotion ? 0.00012 : 0.0003;
-    for (const b of bubbles) {
-      M.Body.applyForce(b, b.position, {
-        x: (Math.random() - 0.5) * jitter * b.mass,
-        y: -lift * b.mass,
+    for (const { body } of bubbles) {
+      M.Body.applyForce(body, body.position, {
+        x: (Math.random() - 0.5) * jitter * body.mass,
+        y: -lift * body.mass,
       });
     }
   }
 
-  /** Saca de juego las burbujas que escaparon por arriba y rellena el cupo. */
   function recycle(): void {
     for (let i = bubbles.length - 1; i >= 0; i--) {
-      const b = bubbles[i];
-      const r = b.circleRadius ?? 20;
-      if (b.position.y < -r - 60) removeBubble(b);
+      const { body } = bubbles[i];
+      const r = body.circleRadius ?? 20;
+      if (body.position.y < -r - 60) removeBubble(i);
     }
     while (bubbles.length < MIN_BUBBLES) spawnBubble();
   }
 
-  function drawBubble(b: Matter.Body): void {
-    const r = b.circleRadius ?? 20;
-    const { x, y } = b.position;
-    const grad = render.createRadialGradient(
-      x - r * 0.35,
-      y - r * 0.35,
-      r * 0.1,
-      x,
-      y,
-      r,
-    );
-    grad.addColorStop(0, hexAlpha('#ffffff', 0.55));
-    grad.addColorStop(0.55, hexAlpha(lav300(), 0.35));
-    grad.addColorStop(1, hexAlpha(lav500(), 0.18));
-    render.beginPath();
-    render.arc(x, y, r, 0, Math.PI * 2);
-    render.fillStyle = grad;
-    render.fill();
-    render.lineWidth = 1;
-    render.strokeStyle = hexAlpha('#ffffff', 0.4);
-    render.stroke();
-    // brillo especular
-    render.beginPath();
-    render.arc(x - r * 0.32, y - r * 0.32, r * 0.18, 0, Math.PI * 2);
-    render.fillStyle = hexAlpha('#ffffff', 0.6);
-    render.fill();
-  }
-
-  function drawPops(): void {
+  function drawRipples(): void {
+    if (!ripplesGfx) return;
+    ripplesGfx.clear();
     for (let i = pops.length - 1; i >= 0; i--) {
       const p = pops[i];
       p.t += 0.06;
@@ -143,115 +180,187 @@ export function createBubblesEngine({
         continue;
       }
       const r = p.r * (1 + p.t * 1.6);
-      render.beginPath();
-      render.arc(p.x, p.y, r, 0, Math.PI * 2);
-      render.lineWidth = 2 * (1 - p.t);
-      render.strokeStyle = hexAlpha(lav500(), 0.5 * (1 - p.t));
-      render.stroke();
+      const alpha = 0.5 * (1 - p.t);
+      ripplesGfx
+        .circle(p.x, p.y, r)
+        .stroke({ color: ripStroke(), width: 2 * (1 - p.t), alpha });
     }
   }
 
   function frame(): void {
-    if (!running || !M || !engine) return;
+    if (!M || !engine) return;
     applyBuoyancy();
     M.Engine.update(engine, 1000 / 60);
     recycle();
-
-    render.clearRect(0, 0, cssW, cssH);
-    for (const b of bubbles) drawBubble(b);
-    drawPops();
-
-    raf = requestAnimationFrame(frame);
+    // sincroniza sprites con cuerpos
+    for (const { body, sprite } of bubbles) {
+      sprite.x = body.position.x;
+      sprite.y = body.position.y;
+      sprite.rotation = body.angle;
+    }
+    drawRipples();
   }
 
   return {
     start(): void {
       if (running) return;
       running = true;
-      void import('matter-js').then((mod) => {
-        if (!running) return; // se detuvo durante la carga
-        // El módulo expone el namespace como default (export =) o como objeto raíz.
-        M = ((mod as unknown as { default?: MatterNS }).default ??
-          (mod as unknown as MatterNS)) as MatterNS;
+      void Promise.all([
+        import('pixi.js'),
+        import('pixi-filters'),
+        import('matter-js'),
+      ]).then(async ([PIXIns, FILTERSns, matterMod]) => {
+        if (!running) return;
+        M = ((matterMod as unknown as { default?: MatterNS }).default ??
+          (matterMod as unknown as MatterNS)) as MatterNS;
         engine = M.Engine.create();
-        // Gravedad muy suave: la flotabilidad la contrarresta para un flotar calmo.
         engine.gravity.y = reducedMotion ? 0.1 : 0.2;
         engine.gravity.scale = 0.001;
+
+        const a = new PIXIns.Application();
+        await a.init({
+          canvas,
+          width: cssW,
+          height: cssH,
+          backgroundAlpha: 0,
+          antialias: true,
+          resolution: Math.min(window.devicePixelRatio || 1, 2),
+          autoDensity: true,
+        });
+        if (!running) {
+          a.destroy(false);
+          return;
+        }
+        app = a;
+        texture = makeBubbleTexture(PIXIns);
+        const c = new PIXIns.Container();
+        const bloom = new FILTERSns.AdvancedBloomFilter({
+          threshold: 0.35,
+          bloomScale: 0.9,
+          brightness: 1.0,
+          blur: 4,
+          quality: 4,
+        });
+        c.filters = [bloom];
+        a.stage.addChild(c);
+        container = c;
+
+        // Capa de ripples encima (sin bloom intenso).
+        const rip = new PIXIns.Graphics();
+        a.stage.addChild(rip);
+        ripplesGfx = rip;
+
+        // Configura el helper que crea Sprites con el Pixi ya cargado.
+        spriteFor = (body: Matter.Body, radius: number) => {
+          const s = new PIXIns.Sprite(texture!);
+          s.anchor.set(0.5);
+          s.tint = lavTint();
+          s.alpha = 0.95;
+          // Sprite ligeramente mayor que el cuerpo para que el bloom no se corte.
+          s.width = s.height = radius * 2.2;
+          s.x = body.position.x;
+          s.y = body.position.y;
+          c.addChild(s);
+          return s;
+        };
+
         for (let i = 0; i < MIN_BUBBLES; i++) {
           spawnBubble(rand(cssH * 0.3, cssH));
         }
-        spawnTimer = setInterval(() => {
-          if (bubbles.length < MAX_BUBBLES) spawnBubble();
-        }, reducedMotion ? SPAWN_MS * 2 : SPAWN_MS);
-        raf = requestAnimationFrame(frame);
+        spawnTimer = setInterval(
+          () => {
+            if (bubbles.length < MAX_BUBBLES) spawnBubble();
+          },
+          reducedMotion ? SPAWN_MS * 2 : SPAWN_MS,
+        );
+
+        tickerFn = () => frame();
+        a.ticker.add(tickerFn);
       });
     },
 
     stop(): void {
       running = false;
-      if (raf) cancelAnimationFrame(raf);
-      raf = 0;
       if (spawnTimer) clearInterval(spawnTimer);
       spawnTimer = null;
+      if (app && tickerFn) app.ticker.remove(tickerFn);
+      tickerFn = null;
       if (M && engine) {
         M.Composite.clear(engine.world, false);
         M.Engine.clear(engine);
       }
-      bubbles.length = 0;
-      pops.length = 0;
       engine = null;
       M = null;
+      bubbles.length = 0;
+      pops.length = 0;
+      if (container) {
+        try {
+          container.destroy({ children: true });
+        } catch {
+          /* ignore */
+        }
+      }
+      container = null;
+      if (ripplesGfx) {
+        try {
+          ripplesGfx.destroy();
+        } catch {
+          /* ignore */
+        }
+      }
+      ripplesGfx = null;
+      if (texture) {
+        try {
+          texture.destroy(true);
+        } catch {
+          /* ignore */
+        }
+      }
+      texture = null;
+      if (app) {
+        try {
+          // false: NO quitar el canvas del DOM (es de React, no de Pixi).
+          app.destroy(false, { children: true, texture: true });
+        } catch {
+          /* ignore */
+        }
+      }
+      app = null;
     },
 
-    resize(width: number, height: number, ratio: number): void {
+    resize(width: number, height: number, _ratio: number): void {
       cssW = Math.max(1, width);
       cssH = Math.max(1, height);
-      canvas.width = Math.round(cssW * ratio);
-      canvas.height = Math.round(cssH * ratio);
-      render.setTransform(ratio, 0, 0, ratio, 0, 0);
+      if (app) {
+        try {
+          app.renderer.resize(cssW, cssH);
+        } catch {
+          /* ignore */
+        }
+      }
     },
 
     pointerDown(p: PointerSample): void {
-      // Estalla la burbuja más al frente cuyo radio contiene el toque.
+      // Estalla la burbuja más al frente con +12px de tolerancia.
       for (let i = bubbles.length - 1; i >= 0; i--) {
-        const b = bubbles[i];
-        const r = b.circleRadius ?? 20;
-        // +12px de tolerancia: estallar es más fácil que apuntar al píxel exacto.
+        const { body } = bubbles[i];
+        const r = body.circleRadius ?? 20;
         const hit = r + 12;
-        const dx = p.x - b.position.x;
-        const dy = p.y - b.position.y;
+        const dx = p.x - body.position.x;
+        const dy = p.y - body.position.y;
         if (dx * dx + dy * dy <= hit * hit) {
-          popAt(b);
+          popAt(i);
           return;
         }
       }
     },
 
     pointerMove(): void {
-      /* burbujas reaccionan solo al tap; el arrastre no hace nada */
+      /* burbujas solo reaccionan al tap */
     },
 
     pointerUp(): void {
       /* sin estado de arrastre */
     },
   };
-}
-
-/** #rrggbb + alpha → rgba(). Acepta ya-rgb()/rgba() devolviéndolo tal cual. */
-function hexAlpha(color: string, alpha: number): string {
-  const hex = color.trim();
-  if (!hex.startsWith('#')) return hex;
-  let r = 0;
-  let g = 0;
-  let b = 0;
-  if (hex.length === 7) {
-    r = parseInt(hex.slice(1, 3), 16);
-    g = parseInt(hex.slice(3, 5), 16);
-    b = parseInt(hex.slice(5, 7), 16);
-  } else if (hex.length === 4) {
-    r = parseInt(hex[1] + hex[1], 16);
-    g = parseInt(hex[2] + hex[2], 16);
-    b = parseInt(hex[3] + hex[3], 16);
-  }
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }

@@ -244,6 +244,9 @@ const TouchPage: React.FC = () => {
       <IonContent className="touch-content" fullscreen scrollY={false}>
         <div className="touch-stage" ref={stageRef}>
           <canvas
+            // key por variant: React entrega un canvas FRESCO al reordenar (↻).
+            // PixiJS no puede reusar el mismo canvas tras destruir su contexto WebGL.
+            key={variant}
             ref={canvasRef}
             className="sa-canvas-stage touch-canvas"
             aria-label={`Experiencia táctil: ${HINTS[variant]}`}
