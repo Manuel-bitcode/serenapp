@@ -37,7 +37,7 @@ export function createParticlesEngine({
   const particles: Particle[] = [];
   let pointer: PointerSample | null = null;
 
-  const count = reducedMotion ? 100 : 150;
+  const count = reducedMotion ? 180 : 260;
   const driftScale = reducedMotion ? 0.26 : 0.45;
 
   function colors(): string[] {
