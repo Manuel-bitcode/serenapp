@@ -1,11 +1,12 @@
-/* SerenApp · RF1 — audio procedural del módulo "Siente".
+/* SerenApp · RF1 — audio del módulo "Siente".
  *
- * Todo se genera con la Web Audio API (sin archivos → 100% offline, RNF3):
- *   - pad ambiental relajante (osciladores suaves + filtro + LFO lento)
- *   - sonidos por interacción: granos de arena, pop de burbuja, campana de estrella, tono
+ * - Música de fondo: MP3 en loop (Lavender Meter, generado en Suno).
+ * - Sonidos por interacción (arena/pop/chime/whoosh): se reproducen desde archivos
+ *   MP3 cacheados en AudioBuffer (polifónicos, vía AudioBufferSourceNode). Si por
+ *   algún motivo el archivo no carga, hay un fallback procedural con Web Audio.
  *
- * El AudioContext se crea/resume tras el primer gesto del usuario (política de autoplay).
- * Los motores reciben un TouchSound y disparan los efectos; no saben de Web Audio.
+ * Todo viaja por el master gain → el botón 🔇 y los fades aplican igual a música
+ * y SFX. El AudioContext se crea/reanuda tras el primer gesto (política de autoplay).
  */
 
 export interface TouchSound {
@@ -14,13 +15,13 @@ export interface TouchSound {
   startAmbient(): void;
   stopAmbient(): void;
   setMuted(muted: boolean): void;
-  /** Arena: grano de ruido filtrado (rate-limited). */
+  /** Arena: grano. */
   grain(): void;
-  /** Burbuja: blip corto con caída de tono. */
+  /** Burbuja: pop. */
   pop(): void;
-  /** Estrella: campana de escala pentatónica. */
+  /** Estrella: campana (con transposición pentatónica). */
   chime(): void;
-  /** Partículas: tono muy suave (rate-limited). */
+  /** Partículas: soplido aireado. */
   tone(): void;
   /** Libera todo (cerrar contexto). */
   dispose(): void;
@@ -28,22 +29,37 @@ export interface TouchSound {
 
 type WebkitWindow = Window & { webkitAudioContext?: typeof AudioContext };
 
-const PENTATONIC = [523.25, 587.33, 698.46, 783.99, 880.0]; // C5 mayor pentatónica
+const SFX_FILES = {
+  grain: '/audio/sfx/grain.mp3',
+  pop: '/audio/sfx/pop.mp3',
+  chime: '/audio/sfx/chime.mp3',
+  whoosh: '/audio/sfx/whoosh.mp3',
+} as const;
+type SfxKey = keyof typeof SFX_FILES;
+
+/** Pentatónica mayor (ratios) — varía el tono de la campana sin volver a sintetizar. */
+const CHIME_RATIOS = [1, 9 / 8, 5 / 4, 3 / 2, 5 / 3];
+
+/** Pentatónica como frecuencias absolutas (C5) — solo para el fallback procedural. */
+const PENTATONIC_HZ = [523.25, 587.33, 698.46, 783.99, 880.0];
 
 export function createTouchAudio(initialMuted = false): TouchSound {
   let ctx: AudioContext | null = null;
   let master: GainNode | null = null;
   let muted = initialMuted;
 
-  // Música de fondo: pista MP3 (Lavender Meter) en loop, ruteada por el master gain
-  // para que el botón de silencio y los fades sigan aplicando.
   let ambient: {
     audio: HTMLAudioElement;
     src: MediaElementAudioSourceNode;
     gain: GainNode;
   } | null = null;
 
+  /** Buffer de ruido blanco reutilizable (solo para fallbacks procedurales). */
   let noiseBuffer: AudioBuffer | null = null;
+  /** SFX cargados desde MP3; lo que falte se sustituye por el fallback procedural. */
+  const sfxBuffers: Partial<Record<SfxKey, AudioBuffer>> = {};
+  let sfxLoading = false;
+
   let lastGrain = 0;
   let lastTone = 0;
 
@@ -56,16 +72,53 @@ export function createTouchAudio(initialMuted = false): TouchSound {
     master = ctx.createGain();
     master.gain.value = muted ? 0 : 1;
     master.connect(ctx.destination);
-    // Buffer de ruido blanco reutilizable (1 s).
+    // ruido blanco para fallbacks (decoders fallidos o archivos ausentes).
     const buf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
     const data = buf.getChannelData(0);
     for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
     noiseBuffer = buf;
+    // arrancar carga de los 4 SFX en paralelo (no bloquea).
+    void loadSfx();
     return true;
+  }
+
+  async function loadSfx(): Promise<void> {
+    if (sfxLoading || !ctx) return;
+    sfxLoading = true;
+    const entries = Object.entries(SFX_FILES) as [SfxKey, string][];
+    await Promise.all(
+      entries.map(async ([key, url]) => {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) return;
+          const ab = await res.arrayBuffer();
+          if (!ctx) return; // se cerró el contexto mientras cargaba
+          const buf = await ctx.decodeAudioData(ab);
+          sfxBuffers[key] = buf;
+        } catch {
+          /* silencio: si falla, queda el fallback procedural */
+        }
+      }),
+    );
   }
 
   function now(): number {
     return ctx ? ctx.currentTime : 0;
+  }
+
+  /** Reproduce un sample del buffer cacheado. Devuelve true si lo logró. */
+  function playSample(key: SfxKey, peak: number, rate = 1): boolean {
+    const buf = sfxBuffers[key];
+    if (!buf || !ctx || !master) return false;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.playbackRate.value = rate;
+    const g = ctx.createGain();
+    g.gain.value = peak;
+    src.connect(g);
+    g.connect(master);
+    src.start(0);
+    return true;
   }
 
   return {
@@ -77,14 +130,12 @@ export function createTouchAudio(initialMuted = false): TouchSound {
     startAmbient(): void {
       if (!ensure() || !ctx || !master || ambient) return;
 
-      // Pista generada en Suno; vive en public/audio/ y se sirve desde la raíz.
       const audio = new Audio('/audio/lavender-meter.mp3');
-      audio.loop = true; // se reinicia automáticamente al terminar
+      audio.loop = true;
       audio.preload = 'auto';
 
       const gain = ctx.createGain();
       gain.gain.value = 0.0001;
-      // Fade-in suave para no entrar de golpe.
       gain.gain.linearRampToValueAtTime(0.7, now() + 2.5);
 
       const src = ctx.createMediaElementSource(audio);
@@ -92,10 +143,8 @@ export function createTouchAudio(initialMuted = false): TouchSound {
       gain.connect(master);
 
       ambient = { audio, src, gain };
-      // play() puede rechazar si aún no hubo gesto; el primer toque ya llamó a resume(),
-      // así que normalmente arranca. Si rechaza, lo intentará el próximo toque.
       void audio.play().catch(() => {
-        /* política de autoplay: ignorar; reintentar al siguiente gesto */
+        /* política de autoplay: ignorar; el próximo gesto reintentará */
       });
     },
 
@@ -103,7 +152,6 @@ export function createTouchAudio(initialMuted = false): TouchSound {
       if (!ctx || !ambient) return;
       const a = ambient;
       ambient = null;
-      // Fade-out suave y luego pausa + desconexión.
       a.gain.gain.cancelScheduledValues(now());
       a.gain.gain.setValueAtTime(Math.max(0.0001, a.gain.gain.value), now());
       a.gain.gain.linearRampToValueAtTime(0.0001, now() + 0.6);
@@ -130,11 +178,14 @@ export function createTouchAudio(initialMuted = false): TouchSound {
     },
 
     grain(): void {
-      if (muted || !ensure() || !ctx || !master || !noiseBuffer) return;
+      if (muted || !ensure() || !ctx || !master) return;
       const t = now();
       if (t - lastGrain < 0.055) return; // throttle del arrastre
       lastGrain = t;
-
+      // Sample real (si está cargado), con leve variación de tono.
+      if (playSample('grain', 0.4, 0.85 + Math.random() * 0.3)) return;
+      // Fallback procedural: ruido bandpass corto.
+      if (!noiseBuffer) return;
       const src = ctx.createBufferSource();
       src.buffer = noiseBuffer;
       src.loop = true;
@@ -155,6 +206,9 @@ export function createTouchAudio(initialMuted = false): TouchSound {
 
     pop(): void {
       if (muted || !ensure() || !ctx || !master) return;
+      // Sample real con micro variación de tono para que tap-tap-tap no suene clonado.
+      if (playSample('pop', 0.5, 0.92 + Math.random() * 0.13)) return;
+      // Fallback procedural: sine con caída de tono.
       const t = now();
       const o = ctx.createOscillator();
       o.type = 'sine';
@@ -172,9 +226,13 @@ export function createTouchAudio(initialMuted = false): TouchSound {
 
     chime(): void {
       if (muted || !ensure() || !ctx || !master) return;
+      // Sample real transpuesto a un grado pentatónico aleatorio → variedad musical.
+      const rate = CHIME_RATIOS[Math.floor(Math.random() * CHIME_RATIOS.length)];
+      if (playSample('chime', 0.5, rate)) return;
+      // Fallback procedural: dos parciales tipo campana.
       const t = now();
-      const freq = PENTATONIC[Math.floor(Math.random() * PENTATONIC.length)];
-      // dos parciales para un timbre tipo campana
+      const freq =
+        PENTATONIC_HZ[Math.floor(Math.random() * PENTATONIC_HZ.length)];
       for (const [mult, peak] of [
         [1, 0.03],
         [2.01, 0.012],
@@ -194,11 +252,14 @@ export function createTouchAudio(initialMuted = false): TouchSound {
     },
 
     tone(): void {
-      // Partículas: soplido de aire suave (ruido filtrado que decae), no un "beep".
-      if (muted || !ensure() || !ctx || !master || !noiseBuffer) return;
+      if (muted || !ensure() || !ctx || !master) return;
       const t = now();
       if (t - lastTone < 0.09) return;
       lastTone = t;
+      // Sample real (whoosh) con leve variación de tono.
+      if (playSample('whoosh', 0.35, 0.9 + Math.random() * 0.2)) return;
+      // Fallback procedural: soplido (ruido lowpass que decae).
+      if (!noiseBuffer) return;
       const src = ctx.createBufferSource();
       src.buffer = noiseBuffer;
       src.loop = true;
@@ -226,6 +287,10 @@ export function createTouchAudio(initialMuted = false): TouchSound {
         ctx = null;
         master = null;
         noiseBuffer = null;
+        for (const k of Object.keys(sfxBuffers) as SfxKey[]) {
+          delete sfxBuffers[k];
+        }
+        sfxLoading = false;
         setTimeout(() => void c.close(), 800);
       }
     },
