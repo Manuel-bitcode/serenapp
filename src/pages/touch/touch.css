@@ -7,12 +7,34 @@
   --background: transparent;
 }
 
-/* Fondo degradado calmo, como el mockup. El canvas se pinta encima. */
+/* Fondo base: cada experiencia se modifica con .touch-stage--<variant>.
+ * Mint→lavanda queda como fallback si por algún motivo falta el modificador. */
 .touch-stage {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, var(--sa-mint) 0%, var(--sa-lav-300) 100%);
   overflow: hidden;
+}
+
+/* Burbujas — Acuario suave: verde-agua + lavanda. */
+.touch-stage--bubbles {
+  background: linear-gradient(180deg, var(--sa-mint) 0%, var(--sa-lav-300) 100%);
+}
+
+/* Arena — Atardecer dorado: rosa suave → ámbar de duna. */
+.touch-stage--sand {
+  background: linear-gradient(180deg, var(--sa-rose) 0%, var(--sa-warm) 100%);
+}
+
+/* Partículas — Amanecer suave: lavanda muy clara → rosa. */
+.touch-stage--particles {
+  background: linear-gradient(180deg, var(--sa-lav-100) 0%, var(--sa-rose) 100%);
+}
+
+/* Constelación — Noche profunda; matchea el color que pinta el canvas Pixi,
+ * para evitar un flash mint→lavanda durante los ~500 ms de carga. */
+.touch-stage--constellation {
+  background: #171327;
 }
 
 .touch-canvas {
