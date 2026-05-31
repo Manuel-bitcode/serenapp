@@ -81,8 +81,6 @@ retroceso de Android (doble pulsación para salir desde la raíz).
 pruebas · RNF3 100% local, sin nube · RNF4 navegación sin tutorial · RNF5 modo oscuro + texto
 escalable (utilidades de Ionic) · RNF6 módulos independientes y probables por separado.
 
-Detalle de arquitectura y trazabilidad: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
-
 ## Estructura
 
 ```
@@ -94,7 +92,3 @@ src/
 ├── components/   # UI compartida (Splash)
 └── features/     # onboarding · home · touch · capture · write · history · settings
 ```
-
-## Equipo (subagentes en `.claude/agents/`)
-
-`serenapp-architect` · `serenapp-senior-dev` · `serenapp-designer` · `serenapp-qa`.

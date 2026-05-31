@@ -40,3 +40,10 @@ yarn-error.log*
 # APK / AAB build outputs copied to root
 /*.apk
 /*.aab
+
+# Documentación Markdown (solo se sube el README de la raíz)
+*.md
+!/README.md
+
+# Configuración / agentes de Claude
+.claude/
