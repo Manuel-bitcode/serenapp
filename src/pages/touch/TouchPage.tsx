@@ -4,7 +4,7 @@ import type { TouchVariant } from '../../data/types';
 import { useTouchPage } from './useTouchPage';
 import './touch.css';
 
-/* RF1 — módulo "Siente": 4 mini-experiencias táctiles elegidas al azar.
+/* módulo "Siente": 4 mini-experiencias táctiles elegidas al azar.
  * Toda la lógica (variant, cronómetro, motor, gestos, audio, mute, reshuffle,
  * registro de sesión) vive en useTouchPage. Aquí solo el JSX y el cableado. */
 

@@ -7,7 +7,7 @@ import { addTextEntry } from '../../services/entries';
 const DRAFT_KEY = 'serenapp.draft';
 const DAY_MS = 86400000;
 
-/** Pregunta del día: determinista por jornada, rota a diario (RF4). */
+/** Pregunta del día: determinista por jornada, rota a diario. */
 function promptOfTheDay(): string {
   return WRITING_PROMPTS[Math.floor(Date.now() / DAY_MS) % WRITING_PROMPTS.length];
 }
@@ -18,7 +18,7 @@ interface Draft {
 }
 
 /**
- * Lógica de Escritura (RF4/RF5): pregunta rotativa, autoguardado de borrador
+ * Lógica de Escritura: pregunta rotativa, autoguardado de borrador
  * en Preferences (debounced), guardado final en Dexie, navegación al historial.
  */
 export function useWritePage() {

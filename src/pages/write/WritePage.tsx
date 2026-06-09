@@ -12,7 +12,7 @@ import { useWritePage } from './useWritePage';
 import './write.css';
 
 /**
- * RF4/RF5 — Escritura guiada. Toda la lógica (carga/autoguardado de borrador,
+ * Escritura guiada. Toda la lógica (carga/autoguardado de borrador,
  * rotación de pregunta, guardado final, navegación) vive en useWritePage.
  */
 const WritePage: React.FC = () => {

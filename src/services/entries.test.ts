@@ -17,7 +17,7 @@ beforeEach(async () => {
   await db.entries.clear();
 });
 
-describe('servicio de entradas (RF3/RF5, almacenamiento local)', () => {
+describe('servicio de entradas (almacenamiento local)', () => {
   it('guarda los 3 tipos y los lista del más reciente al más antiguo', async () => {
     const a = await addTextEntry('¿Qué piensas?', 'hola');
     await wait(10);

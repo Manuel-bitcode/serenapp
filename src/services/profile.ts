@@ -1,4 +1,4 @@
-/* SerenApp — perfil local (RF7). Nombre + flag de onboarding en Capacitor Preferences.
+/* perfil local. Nombre + flag de onboarding en Capacitor Preferences.
  * Sin registro, correo, contraseña ni backend.
  */
 import { Preferences } from '@capacitor/preferences';

@@ -18,7 +18,7 @@ import {
 import { clearSettings } from '../../services/settings';
 
 /**
- * Lógica completa de Ajustes (RF6/RF7/RNF3/RNF5): perfil, recordatorio,
+ * Lógica completa de Ajustes: perfil, recordatorio,
  * tema/texto y borrado de datos. La page solo cablea props del hook a la UI.
  */
 export function useSettingsPage() {
@@ -47,7 +47,7 @@ export function useSettingsPage() {
     ? `${counts.text} escritas · ${counts.photo} fotos · ${counts.touch} sesiones`
     : 'Cargando…';
 
-  // Persistir recordatorio + reprogramar la notificación local nativa (RF6).
+  // Persistir recordatorio + reprogramar la notificación local nativa.
   const applyReminder = async (enabled: boolean, time: string) => {
     await update({ reminderEnabled: enabled, reminderTime: time });
     await syncReminder(enabled, time, profileName);

@@ -1,9 +1,5 @@
-/* SerenApp · RF1 — experiencia "Partículas" (renderizado con PixiJS/WebGL).
- *
- * Campo de ~1300 partículas con glow real (AdvancedBloomFilter) y blend aditivo
- * — más densas y luminosas que con Canvas 2D, sin perder 60 fps en gama media.
- * Físicas: deriva + repulsión del puntero (igual que antes). Sin React.
- */
+// Experiencia "Partículas": campo de ~1300 partículas con bloom y blend aditivo.
+// Físicas simples: deriva + repulsión del puntero. Render WebGL con PixiJS, sin React.
 import {
   cssVar,
   type EngineOptions,

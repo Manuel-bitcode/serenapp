@@ -1,6 +1,4 @@
-/* SerenApp — contratos de datos compartidos.
- * Toda la app codifica contra estos tipos. No duplicar en los módulos.
- */
+// Contratos de datos compartidos. Toda la app codifica contra estos tipos.
 
 export type EntryType = 'touch' | 'photo' | 'text';
 export type TouchVariant = 'bubbles' | 'sand' | 'particles' | 'constellation';
@@ -15,26 +13,26 @@ export type EmotionTag =
 export interface BaseEntry {
   id?: number;
   type: EntryType;
-  /** epoch ms — orden cronológico del historial */
+  // timestamp (epoch ms) para ordenar el historial
   createdAt: number;
 }
 
-/** RF1 — sesión del módulo táctil */
+// sesión del módulo táctil
 export interface TouchEntry extends BaseEntry {
   type: 'touch';
   variant: TouchVariant;
   durationMs: number;
 }
 
-/** RF2 — foto + etiqueta emocional */
+// foto + etiqueta emocional
 export interface PhotoEntry extends BaseEntry {
   type: 'photo';
-  /** dataURL (base64) — guardado 100% local (RNF3) */
+  // dataURL en base64, guardado local
   dataUrl: string;
   tag: EmotionTag;
 }
 
-/** RF4/RF5 — entrada de escritura guiada */
+// entrada de escritura guiada
 export interface TextEntry extends BaseEntry {
   type: 'text';
   prompt: string;
@@ -48,7 +46,7 @@ export type Entry = TouchEntry | PhotoEntry | TextEntry;
 export type ThemePref = 'system' | 'light' | 'dark';
 export type TextScale = 'normal' | 'grande' | 'mayor';
 
-/** RF7 — perfil local, sin backend */
+// perfil local, sin backend
 export interface Profile {
   name: string;
   onboarded: boolean;
@@ -57,7 +55,7 @@ export interface Profile {
 export interface Settings {
   theme: ThemePref;
   textScale: TextScale;
-  /** RF6 — recordatorio diario */
+  // recordatorio diario
   reminderEnabled: boolean;
   /** "HH:mm" 24h */
   reminderTime: string;
@@ -65,7 +63,7 @@ export interface Settings {
 
 /* ----- Catálogos ----- */
 
-/** RF2 — ≥6 etiquetas emocionales predefinidas */
+// etiquetas emocionales predefinidas
 export const EMOTIONS: { tag: EmotionTag; label: string; emoji: string }[] = [
   { tag: 'calma', label: 'Calma', emoji: '😌' },
   { tag: 'ansiedad', label: 'Ansiedad', emoji: '😟' },
@@ -78,7 +76,7 @@ export const EMOTIONS: { tag: EmotionTag; label: string; emoji: string }[] = [
 export const emotionByTag = (tag: EmotionTag) =>
   EMOTIONS.find((e) => e.tag === tag) ?? EMOTIONS[5];
 
-/** RF4 — banco de ≥5 preguntas detonadoras rotativas */
+// preguntas detonadoras que rotan en la pantalla de escritura
 export const WRITING_PROMPTS: string[] = [
   '¿Qué estás pensando ahora mismo?',
   '¿Qué necesitas en este momento?',

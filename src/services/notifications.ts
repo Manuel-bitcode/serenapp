@@ -1,4 +1,4 @@
-/* SerenApp — recordatorio diario programable (RF6) con @capacitor/local-notifications.
+/* recordatorio diario programable con @capacitor/local-notifications.
  * En web el plugin no programa notificaciones nativas: el ajuste igual se guarda y la UI
  * informa que el recordatorio aplica en el dispositivo. Todo guardado con guardas de plataforma.
  */

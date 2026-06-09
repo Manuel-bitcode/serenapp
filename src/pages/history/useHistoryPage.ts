@@ -88,7 +88,7 @@ export function useHistoryPage() {
   const router = useIonRouter();
   const { entries, refresh } = useEntries();
 
-  // Recargar al volver a la pestaña para que aparezcan nuevas entradas (RF3/RF5).
+  // Recargar al volver a la pestaña para que aparezcan nuevas entradas.
   useIonViewWillEnter(() => {
     void refresh();
   });

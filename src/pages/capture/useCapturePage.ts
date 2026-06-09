@@ -4,7 +4,7 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import type { EmotionTag } from '../../data/types';
 import { addPhotoEntry } from '../../services/entries';
 
-/** Lógica de Captura (RF2): foto/galería + etiqueta + guardado local. */
+/** Lógica de Captura: foto/galería + etiqueta + guardado local. */
 export function useCapturePage() {
   const router = useIonRouter();
   const [dataUrl, setDataUrl] = useState<string | null>(null);

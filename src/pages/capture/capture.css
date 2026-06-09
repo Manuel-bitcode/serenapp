@@ -1,5 +1,5 @@
-/* RF2 — Captura fotográfica emocional. Lenguaje visual menta; tokens --sa-* para
- * soportar modo oscuro automáticamente (RNF5). No se codifican colores de paleta. */
+/* Captura fotográfica emocional. Lenguaje visual menta; tokens --sa-* para
+ * soportar modo oscuro automáticamente. No se codifican colores de paleta. */
 
 .capture {
   display: flex;

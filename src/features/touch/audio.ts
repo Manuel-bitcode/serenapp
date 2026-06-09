@@ -1,13 +1,7 @@
-/* SerenApp · RF1 — audio del módulo "Siente".
- *
- * - Música de fondo: MP3 en loop (Lavender Meter, generado en Suno).
- * - Sonidos por interacción (arena/pop/chime/whoosh): se reproducen desde archivos
- *   MP3 cacheados en AudioBuffer (polifónicos, vía AudioBufferSourceNode). Si por
- *   algún motivo el archivo no carga, hay un fallback procedural con Web Audio.
- *
- * Todo viaja por el master gain → el botón 🔇 y los fades aplican igual a música
- * y SFX. El AudioContext se crea/reanuda tras el primer gesto (política de autoplay).
- */
+// Audio de la pantalla Siente.
+// Música de fondo en loop + sfx por interacción cargados desde mp3 (con fallback
+// procedural si no cargan). Todo pasa por un master gain para el mute global.
+// El AudioContext arranca en el primer gesto por la política de autoplay.
 
 export interface TouchSound {
   /** Crea/reanuda el AudioContext. Llamar en el primer gesto. */
@@ -37,10 +31,10 @@ const SFX_FILES = {
 } as const;
 type SfxKey = keyof typeof SFX_FILES;
 
-/** Pentatónica mayor (ratios) — varía el tono de la campana sin volver a sintetizar. */
+// pentatónica mayor (ratios) para variar el tono de la campana sin re-sintetizar
 const CHIME_RATIOS = [1, 9 / 8, 5 / 4, 3 / 2, 5 / 3];
 
-/** Pentatónica como frecuencias absolutas (C5) — solo para el fallback procedural. */
+// pentatónica en Hz (C5), solo para el fallback procedural
 const PENTATONIC_HZ = [523.25, 587.33, 698.46, 783.99, 880.0];
 
 export function createTouchAudio(initialMuted = false): TouchSound {

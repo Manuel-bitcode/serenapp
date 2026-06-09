@@ -26,7 +26,7 @@ const SLIDES: Slide[] = [
   },
 ];
 
-/** Pantalla 02 — Onboarding + captura del nombre local (RF7, RNF4). */
+/** Pantalla 02 — Onboarding + captura del nombre local. */
 const OnboardingPage: React.FC = () => {
   const { step, name, setName, isNameStep, next, skip, finish } =
     useOnboardingPage();

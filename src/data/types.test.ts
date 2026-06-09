@@ -8,7 +8,7 @@ import {
 } from './types';
 
 describe('catálogos de datos', () => {
-  it('RF2: ofrece al menos 6 etiquetas emocionales', () => {
+  it('ofrece al menos 6 etiquetas emocionales', () => {
     expect(EMOTIONS.length).toBeGreaterThanOrEqual(6);
   });
 
@@ -21,11 +21,11 @@ describe('catálogos de datos', () => {
     });
   });
 
-  it('RF4: el banco tiene al menos 5 preguntas rotativas', () => {
+  it('el banco tiene al menos 5 preguntas rotativas', () => {
     expect(WRITING_PROMPTS.length).toBeGreaterThanOrEqual(5);
   });
 
-  it('RF1: ≥3 variantes táctiles (4: burbujas/arena/partículas/constelación), todas con etiqueta', () => {
+  it('≥3 variantes táctiles (4: burbujas/arena/partículas/constelación), todas con etiqueta', () => {
     expect(TOUCH_VARIANTS).toEqual([
       'bubbles',
       'sand',

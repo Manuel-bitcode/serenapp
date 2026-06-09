@@ -1,5 +1,5 @@
-/* RF4/RF5 — Escritura guiada. Lenguaje visual cálido; tokens --sa-* para soporte
- * automático de modo oscuro (RNF5). No se codifican colores de paleta. */
+/* Escritura guiada. Lenguaje visual cálido; tokens --sa-* para soporte
+ * automático de modo oscuro. No se codifican colores de paleta. */
 
 .write {
   display: flex;

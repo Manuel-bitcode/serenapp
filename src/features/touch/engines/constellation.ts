@@ -1,11 +1,7 @@
-/* SerenApp · RF1 — experiencia "Constelación" (renderizado con PixiJS/WebGL).
- *
- * Cielo nocturno con bloom real:
- *  - ~180 estrellas de fondo que titilan y derivan muy lento.
- *  - El usuario coloca estrellas grandes con glow (toque + campana).
- *  - Arrastre conecta estrellas con líneas suaves.
- *  - Las estrellas/líneas se desvanecen para no saturar.
- */
+// Experiencia "Constelación" (PixiJS/WebGL). Cielo nocturno con bloom:
+//  - estrellas de fondo que titilan y derivan lento
+//  - el usuario coloca estrellas grandes con glow (toque + campana)
+//  - el arrastre las conecta con líneas; estrellas y líneas se desvanecen
 import {
   cssVar,
   type EngineOptions,

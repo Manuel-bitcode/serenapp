@@ -6,7 +6,7 @@ import ScreenHeader from '../../components/screen-header/ScreenHeader';
 import { useHistoryPage } from './useHistoryPage';
 import './history.css';
 
-/** Pantalla 08 — Historial cronológico unificado (RF3/RF5). */
+/** Pantalla 08 — Historial cronológico unificado. */
 const HistoryPage: React.FC = () => {
   const { groups, isEmpty, openEntry, cardText } = useHistoryPage();
 

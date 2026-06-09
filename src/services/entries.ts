@@ -1,4 +1,4 @@
-/* SerenApp — servicio de entradas. CRUD del historial unificado (RF3/RF5).
+/* servicio de entradas. CRUD del historial unificado.
  * Única vía de acceso a la tabla `entries`; los módulos no tocan Dexie directo.
  */
 import { db } from '../data/db';

@@ -35,7 +35,7 @@ function formatFullDate(ts: number): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-/** Detalle de una entrada del historial (RF5). */
+/** Detalle de una entrada del historial. */
 const EntryDetailPage: React.FC = () => {
   const { entry, loaded, confirmOpen, openConfirm, closeConfirm, handleDelete } =
     useEntryDetailPage();

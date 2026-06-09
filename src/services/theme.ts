@@ -1,4 +1,4 @@
-/* SerenApp — aplicación de tema (light/dark) y tamaño de texto al documento (RNF5).
+/* aplicación de tema (light/dark) y tamaño de texto al documento.
  * Modo "class": alterna .ion-palette-dark en <html>. Sigue al sistema si theme==='system'.
  */
 import type { ThemePref, TextScale } from '../data/types';

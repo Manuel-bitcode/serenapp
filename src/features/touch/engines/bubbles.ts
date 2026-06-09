@@ -1,10 +1,6 @@
-/* SerenApp · RF1 — experiencia "Burbujas" (físicas matter.js + render PixiJS).
- *
- * matter.js mantiene la física (flotabilidad, jitter, gravedad muy suave).
- * El render es WebGL via PixiJS con AdvancedBloomFilter → glow real "luz dentro
- * del agua". Cada cuerpo de Matter tiene un Sprite vinculado; al tocar una
- * burbuja se elimina y se añade un ripple que escala+desvanece.
- */
+// Experiencia "Burbujas": física con matter.js, render WebGL con PixiJS.
+// El bloom da el glow tipo "luz dentro del agua". Cada cuerpo de matter tiene un
+// sprite vinculado; al tocar una burbuja se elimina y queda un ripple que se desvanece.
 import type Matter from 'matter-js';
 import {
   cssVar,

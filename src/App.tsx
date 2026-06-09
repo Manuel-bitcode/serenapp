@@ -30,7 +30,7 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
-/* Dark mode en modo "class": alternamos .ion-palette-dark desde services/theme.ts (RNF5) */
+/* Dark mode en modo "class": alternamos .ion-palette-dark desde services/theme.ts */
 import '@ionic/react/css/palettes/dark.class.css';
 
 /* Theme propio */
@@ -92,7 +92,7 @@ const Tabs: React.FC = () => (
 /**
  * Shell raíz: aplica apariencia, decide la pantalla inicial (onboarding vs tabs)
  * y monta el router. Los módulos inmersivos (touch/capture/write) son rutas de nivel
- * superior que se apilan sobre las tabs → el back de Android vuelve a Home (RF8).
+ * superior que se apilan sobre las tabs → el back de Android vuelve a Home.
  */
 const Shell: React.FC = () => {
   const { showExitHint, dismissExitHint } = useBackButton();

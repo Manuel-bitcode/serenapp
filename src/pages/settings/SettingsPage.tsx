@@ -30,7 +30,7 @@ const textScaleLabel: Record<TextScale, string> = {
   mayor: 'Mayor',
 };
 
-/** Pantalla 09 — Ajustes: perfil (RF7), notificaciones (RF6), apariencia (RNF5), datos (RNF3). */
+/** Pantalla 09 — Ajustes: perfil, notificaciones, apariencia, datos. */
 const SettingsPage: React.FC = () => {
   const s = useSettingsPage();
 
@@ -39,7 +39,7 @@ const SettingsPage: React.FC = () => {
       <ScreenHeader title="Ajustes" />
       <IonContent className="sa-content" fullscreen>
         <div className="sa-screen settings">
-          {/* ---------- Perfil local (RF7) ---------- */}
+          {/* ---------- Perfil local ---------- */}
           <div className="sa-section-label">Perfil local</div>
           <IonList inset className="set-list">
             <IonItem button detail={false} onClick={s.openNameAlert}>
@@ -59,7 +59,7 @@ const SettingsPage: React.FC = () => {
             </IonItem>
           </IonList>
 
-          {/* ---------- Notificaciones (RF6) ---------- */}
+          {/* ---------- Notificaciones ---------- */}
           <div className="sa-section-label">Notificaciones</div>
           <IonList inset className="set-list">
             <IonItem>
@@ -101,7 +101,7 @@ const SettingsPage: React.FC = () => {
             </p>
           )}
 
-          {/* ---------- Apariencia (RNF5) ---------- */}
+          {/* ---------- Apariencia ---------- */}
           <div className="sa-section-label">Apariencia</div>
           <IonList inset className="set-list">
             <IonItem lines="full" className="set-segment-item">
@@ -149,7 +149,7 @@ const SettingsPage: React.FC = () => {
             </IonItem>
           </IonList>
 
-          {/* ---------- Datos (RNF3) ---------- */}
+          {/* ---------- Datos ---------- */}
           <div className="sa-section-label">Datos</div>
           <IonList inset className="set-list">
             <IonItem>
@@ -195,7 +195,7 @@ const SettingsPage: React.FC = () => {
           </IonList>
         </div>
 
-        {/* Editar nombre (RF7) */}
+        {/* Editar nombre */}
         <IonAlert
           isOpen={s.nameAlertOpen}
           header="Tu nombre"
@@ -219,7 +219,7 @@ const SettingsPage: React.FC = () => {
           onDidDismiss={s.closeNameAlert}
         />
 
-        {/* Selector de hora del recordatorio (RF6) */}
+        {/* Selector de hora del recordatorio */}
         <IonModal
           isOpen={s.timeModalOpen}
           onDidDismiss={s.closeTimeModal}
@@ -238,7 +238,7 @@ const SettingsPage: React.FC = () => {
           </div>
         </IonModal>
 
-        {/* Borrar datos — doble confirmación (RNF3) */}
+        {/* Borrar datos — doble confirmación */}
         <IonAlert
           isOpen={s.wipeStep1Open}
           header="Borrar todos los datos"

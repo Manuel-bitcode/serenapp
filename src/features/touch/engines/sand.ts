@@ -1,16 +1,12 @@
-/* SerenApp · RF1 — experiencia "Arena".
- *
- * Autómata celular de arena que cae (falling-sand) sobre una grilla mapeada al
- * canvas. Arrastrar el dedo deposita granos cálidos que caen por "gravedad" y se
- * apilan (se asientan en diagonal). Bucle con requestAnimationFrame. La grilla se
- * limita en resolución para sostener ~60fps en gama media.
- */
+// Experiencia "Arena": autómata celular falling-sand sobre una grilla mapeada al canvas.
+// Arrastrar deposita granos que caen por "gravedad" y se apilan en diagonal.
+// Bucle con requestAnimationFrame; la grilla se acota en resolución para ir fluido.
 import { cssVar, type EngineOptions, type PointerSample, type TouchEngine } from './engine';
 
 // 0 = vacío; >0 = índice de paleta (1-based) del grano.
 type Grid = Uint8Array;
 
-/** Lado de cada celda en px CSS — más grande = menos celdas = más rápido. */
+// lado de cada celda en px css (más grande = menos celdas = más rápido)
 const CELL = 6;
 /** Tope de celdas por eje para acotar el coste por frame en gama media. */
 const MAX_COLS = 160;

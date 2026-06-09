@@ -13,9 +13,9 @@ import { useCapturePage } from './useCapturePage';
 import './capture.css';
 
 /**
- * RF2 — Captura fotográfica emocional.
+ * Captura fotográfica emocional.
  * Toma una foto o la elige de galería (CameraSource.Prompt) y la asocia a una
- * de las 6 etiquetas emocionales. Todo se guarda local (RNF3): la dataURL se
+ * de las 6 etiquetas emocionales. Todo se guarda local: la dataURL se
  * persiste vía addPhotoEntry → Dexie. Sin red.
  */
 const CapturePage: React.FC = () => {

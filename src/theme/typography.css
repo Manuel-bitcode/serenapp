@@ -1,6 +1,6 @@
-/* SerenApp — tipografía
+/* tipografía
  * Inter (UI/cuerpo) + Fraunces (títulos). Cargadas en index.html.
- * Escala en rem para respetar el tamaño de texto del sistema y el control de Ajustes (RNF5).
+ * Escala en rem para respetar el tamaño de texto del sistema y el control de Ajustes.
  */
 
 :root {

@@ -1,4 +1,4 @@
-/* RF8 — botón de retroceso de Android.
+/* botón de retroceso de Android.
  * Si hay historial, navega atrás (no rompe el stack). En la raíz, exige doble pulsación
  * para salir, evitando cierres accidentales. Solo activo en plataforma nativa.
  */

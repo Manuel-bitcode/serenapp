@@ -1,4 +1,4 @@
-/* SerenApp — ajustes en Capacitor Preferences (tema, tamaño de texto, recordatorio). */
+/* ajustes en Capacitor Preferences (tema, tamaño de texto, recordatorio). */
 import { Preferences } from '@capacitor/preferences';
 import type { Settings } from '../data/types';
 

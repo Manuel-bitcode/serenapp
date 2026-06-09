@@ -1,10 +1,7 @@
-/* SerenApp · RF1 — contrato común de los motores táctiles.
- *
- * Cada experiencia (bubbles / sand / particles) implementa esta interfaz como un
- * módulo aislado: SIN React adentro, solo canvas + eventos de puntero. La página
- * (TouchPage) crea el motor, le pasa pointerdown/move/up en tiempo real y llama a
- * stop() para limpiar (cancelar rAF, intervalos, listeners, engines) en el unmount.
- */
+// Contrato común de los motores táctiles.
+// Cada experiencia implementa esta interfaz como un módulo aislado (sin React,
+// solo canvas + eventos de puntero). TouchPage crea el motor, le pasa los gestos
+// y llama a stop() en el unmount para limpiar rAF/intervalos/listeners.
 import type { TouchSound } from '../audio';
 
 /** Punto del puntero en coordenadas CSS del canvas (origen arriba-izquierda). */
@@ -31,7 +28,7 @@ export interface TouchEngine {
 /** Opciones comunes que la página inyecta a cada motor al construirlo. */
 export interface EngineOptions {
   canvas: HTMLCanvasElement;
-  /** RNF1/accesibilidad: reduce spawns y velocidad si el SO pide menos movimiento. */
+  // reduce spawns y velocidad si el SO pide menos movimiento
   reducedMotion: boolean;
   /** Audio procedural opcional; el motor dispara efectos al interactuar. */
   sound?: TouchSound;

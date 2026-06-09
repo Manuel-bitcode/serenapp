@@ -190,7 +190,7 @@ export function useTouchPage() {
     };
   }, [variant]);
 
-  // Registra al desmontar (cubre back físico de Android / navegación, RF8).
+  // Registra al desmontar (cubre back físico de Android / navegación).
   useEffect(() => recordSession, [recordSession]);
 
   // Carga la preferencia de sonido (por defecto activado).
