@@ -4,9 +4,7 @@ import { Preferences } from '@capacitor/preferences';
 import { TOUCH_VARIANTS, type TouchVariant } from '../../data/types';
 import { addTouchEntry } from '../../services/entries';
 import { createBubblesEngine } from '../../features/touch/engines/bubbles';
-import { createSandEngine } from '../../features/touch/engines/sand';
 import { createParticlesEngine } from '../../features/touch/engines/particles';
-import { createConstellationEngine } from '../../features/touch/engines/constellation';
 import { createTouchAudio, type TouchSound } from '../../features/touch/audio';
 import type {
   EngineOptions,
@@ -19,9 +17,7 @@ const HINT_FADE_MS = 4000;
 
 const FACTORIES: Record<TouchVariant, (opts: EngineOptions) => TouchEngine> = {
   bubbles: createBubblesEngine,
-  sand: createSandEngine,
   particles: createParticlesEngine,
-  constellation: createConstellationEngine,
 };
 
 /** Permite forzar una experiencia con ?v=… (demo / pruebas visuales). */
@@ -151,8 +147,7 @@ export function useTouchPage() {
     const onMove = (e: PointerEvent) => {
       if (e.buttons === 0 && e.pointerType === 'mouse') return;
       const sample = toSample(e.clientX, e.clientY);
-      // Si el puntero salió del lienzo terminamos el gesto: evita estrellas
-      // fuera de vista con líneas "que se van a la nada" en la constelación.
+      // Si el puntero salió del lienzo terminamos el gesto.
       if (
         sample.x < 0 ||
         sample.x > canvas.clientWidth ||

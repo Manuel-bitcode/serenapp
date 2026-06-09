@@ -40,7 +40,7 @@ describe('servicio de entradas (almacenamiento local)', () => {
     await addTextEntry('q', 't1');
     await addTextEntry('q', 't2');
     await addPhotoEntry('data:img', 'enojo');
-    await addTouchEntry('sand', 5000);
+    await addTouchEntry('bubbles', 5000);
 
     expect(await entryCounts()).toEqual({ text: 2, photo: 1, touch: 1, total: 4 });
   });
