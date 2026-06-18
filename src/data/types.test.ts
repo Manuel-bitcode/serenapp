@@ -25,8 +25,14 @@ describe('catálogos de datos', () => {
     expect(WRITING_PROMPTS.length).toBeGreaterThanOrEqual(5);
   });
 
-  it('variantes táctiles (burbujas/partículas), todas con etiqueta', () => {
-    expect(TOUCH_VARIANTS).toEqual(['bubbles', 'particles']);
+  it('≥3 variantes táctiles (4: burbujas/arena/partículas/constelación), todas con etiqueta', () => {
+    expect(TOUCH_VARIANTS).toEqual([
+      'bubbles',
+      'sand',
+      'particles',
+      'constellation',
+    ]);
+    expect(TOUCH_VARIANTS.length).toBeGreaterThanOrEqual(3);
     TOUCH_VARIANTS.forEach((v) => expect(touchVariantLabel[v]).toBeTruthy());
   });
 

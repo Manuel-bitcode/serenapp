@@ -12,7 +12,7 @@ import {
   setupIonicReact,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { homeOutline, timeOutline } from 'ionicons/icons';
+import { homeOutline, timeOutline, settingsOutline } from 'ionicons/icons';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -46,6 +46,7 @@ import CapturePage from './pages/capture/CapturePage';
 import WritePage from './pages/write/WritePage';
 import HistoryPage from './pages/history/HistoryPage';
 import EntryDetailPage from './pages/history/EntryDetailPage';
+import SettingsPage from './pages/settings/SettingsPage';
 
 import { getProfile } from './services/profile';
 import { getSettings } from './services/settings';
@@ -54,7 +55,7 @@ import { useBackButton } from './hooks/useBackButton';
 
 setupIonicReact();
 
-/** Pestañas de la app: Inicio / Historial. */
+/** Pestañas de la app: Inicio / Historial / Ajustes. */
 const Tabs: React.FC = () => (
   <IonTabs>
     <IonRouterOutlet>
@@ -63,6 +64,9 @@ const Tabs: React.FC = () => (
       </Route>
       <Route exact path="/tabs/history">
         <HistoryPage />
+      </Route>
+      <Route exact path="/tabs/settings">
+        <SettingsPage />
       </Route>
       <Route exact path="/tabs">
         <Redirect to="/tabs/home" />
@@ -76,6 +80,10 @@ const Tabs: React.FC = () => (
       <IonTabButton tab="history" href="/tabs/history">
         <IonIcon aria-hidden="true" icon={timeOutline} />
         <IonLabel>Historial</IonLabel>
+      </IonTabButton>
+      <IonTabButton tab="settings" href="/tabs/settings">
+        <IonIcon aria-hidden="true" icon={settingsOutline} />
+        <IonLabel>Ajustes</IonLabel>
       </IonTabButton>
     </IonTabBar>
   </IonTabs>

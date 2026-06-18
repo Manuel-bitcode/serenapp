@@ -4,13 +4,15 @@ import type { TouchVariant } from '../../data/types';
 import { useTouchPage } from './useTouchPage';
 import './touch.css';
 
-/* módulo "Siente": mini-experiencias táctiles elegidas al azar.
+/* módulo "Siente": 4 mini-experiencias táctiles elegidas al azar.
  * Toda la lógica (variant, cronómetro, motor, gestos, audio, mute, reshuffle,
  * registro de sesión) vive en useTouchPage. Aquí solo el JSX y el cableado. */
 
 const HINTS: Record<TouchVariant, string> = {
   bubbles: 'Toca las burbujas para estallarlas',
+  sand: 'Desliza para mover la arena',
   particles: 'Mueve las partículas con el dedo',
+  constellation: 'Toca para crear estrellas; arrastra para unirlas',
 };
 
 function formatClock(ms: number): string {
